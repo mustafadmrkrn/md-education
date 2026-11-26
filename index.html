@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MD Education Prototipi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--card:#fff;--ink:#1c1a2e;--mut:#6b6880;--line:#e4e1ef;--pri:#1749b3;--soft:#e6eefc;--acc:#ff8a3d;--ok:#14804a;--bad:#c0342b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center;padding:10px 20px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:20px;color:var(--pri);text-decoration:none;margin-right:auto}
+a{color:var(--pri)}
+main{max-width:1080px;margin:0 auto;padding:20px}
+h1{font-size:30px;line-height:1.2;margin:8px 0}h2{font-size:20px;margin:26px 0 12px}h3{margin:0 0 6px;font-size:16px}
+.btn{border:1px solid var(--pri);background:var(--pri);color:#fff;border-radius:8px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.o{background:transparent;color:var(--pri)}.btn.s{padding:3px 10px;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+a.card{text-decoration:none;color:inherit}a.card:hover{border-color:var(--pri)}
+.cover{height:84px;border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;background:var(--soft);color:var(--pri);border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600}
+.tag.ok{background:#e3f5ea;color:var(--ok)}.tag.bad{background:#fbe7e5;color:var(--bad)}
+.hero{background:linear-gradient(120deg,#1749b3,#0e7490);color:#fff;border-radius:16px;padding:30px}
+.marq{overflow:hidden;margin-top:16px;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 0}
+.track{display:flex;gap:12px;width:max-content;animation:kay 40s linear infinite}
+.marq:hover .track{animation-play-state:paused}
+@keyframes kay{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.track{animation:none}.marq{overflow:auto}}
+.track a{white-space:nowrap;text-decoration:none;border-right:1px solid var(--line);padding:0 16px;color:var(--ink)}
+.chips,.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chips button,.tabs button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer;font:inherit}
+.chips .on,.tabs .on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}th{font-size:12px;color:var(--mut)}
+input,select,textarea{font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;width:100%;background:#fff;color:var(--ink)}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;align-items:end}
+label{font-size:12px;color:var(--mut)}
+.stat b{display:block;font-size:28px;color:var(--pri)}
+.bar{height:8px;background:var(--soft);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:8px;display:none;z-index:9}
+.demo{background:#fff4e8;text-align:center;font-size:13px;padding:5px}
+
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif}
+.btn.big{padding:13px 24px;border-radius:12px;font-size:16px}
+.btn.acc{background:var(--acc);border-color:var(--acc);color:#1c1a2e}
+.vitrin{position:relative}
+.slaytlar{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:24px;scrollbar-width:none;background:#17123a}
+.slayt{flex:0 0 100%;min-width:0;scroll-snap-align:start;display:grid;grid-template-columns:1fr 1.15fr;color:#fff}
+.slayt>div{padding:40px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.slayt h1{font-size:38px}.slayt img{width:100%;height:100%;min-height:340px;object-fit:cover;display:block}
+.slayt p{color:#d9d5f5}
+.ok-btn{position:absolute;bottom:14px;width:40px;height:40px;border-radius:50%;border:0;background:#fff;color:#17123a;font-size:20px;cursor:pointer;box-shadow:0 4px 14px #0005}
+.marq{border:0;background:none;padding:6px 0 14px}
+.track{animation-duration:55s}
+.track a{width:300px;white-space:normal;border:0;padding:0;border-radius:18px;overflow:hidden;background:var(--card);box-shadow:0 8px 24px #2b21601f;transition:transform .25s}
+.track a:hover{transform:translateY(-5px)}
+.track img{width:100%;aspect-ratio:8/5;display:block}.track a div{padding:10px 14px}
+.cover{height:auto;width:100%;aspect-ratio:8/5;display:block;object-fit:cover;border-radius:12px}
+a.card{border-radius:18px;padding:10px 10px 14px;transition:transform .25s,box-shadow .25s}
+a.card:hover{transform:translateY(-5px);box-shadow:0 14px 30px #2b216026}
+.grid.dersler{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.detay-img{width:100%;max-height:380px;object-fit:cover;border-radius:24px;display:block;margin-bottom:14px}
+.veli{background:#17123a;color:#fff;border-radius:24px;padding:32px;margin-top:34px}
+.veli .card{background:#ffffff12;border-color:#ffffff22}.veli .mut{color:#c9c4ee}
+.no{display:inline-flex;width:34px;height:34px;border-radius:10px;background:var(--acc);color:#1c1a2e;font-weight:800;align-items:center;justify-content:center;margin-bottom:8px}
+footer{text-align:center;padding:30px;color:var(--mut);font-size:13px}
+@media(max-width:720px){.slayt{grid-template-columns:1fr}.slayt img{order:-1;min-height:0;aspect-ratio:8/5;height:auto}.slayt>div{padding:22px 22px 64px}.slayt h1{font-size:28px}.track a{width:240px}.veli{padding:20px}}
+
+main{max-width:1280px}
+header{padding:12px 24px;gap:18px;box-shadow:0 2px 12px #14213d14;border:0}
+.logo{margin:0;color:#14213d;font-size:24px;letter-spacing:-.5px}.logo span{color:var(--pri)}
+header .nav{color:var(--ink);text-decoration:none}
+#ara{flex:1;min-width:180px;width:auto;border-radius:99px;padding:11px 20px;border-color:#c9cfdd}
+header .btn{padding:10px 18px}
+.slaytlar{border-radius:8px;background:#e6eefc}
+.slayt{display:block;position:relative;height:440px;color:var(--ink)}
+.slayt>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.slayt>.kutu{position:absolute;left:76px;top:36px;bottom:36px;width:430px;background:#fff;border-radius:8px;padding:30px 36px;box-shadow:0 12px 40px #0002}
+.slayt p{color:var(--mut);margin-top:4px}.slayt h1{font-size:34px}
+.ok-btn{top:50%;bottom:auto;transform:translateY(-50%);width:52px;height:52px;font-size:26px}
+.ok-btn.sol{left:-12px}.ok-btn.sag{right:-12px}
+.uclu{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:20px;align-items:center;margin:44px 0}
+.uclu h2{font-size:36px;line-height:1.25;margin:0}
+.uclu a{text-decoration:none;color:inherit;border-radius:20px;overflow:hidden;background:#f3f5fa;align-self:stretch}
+.uclu img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}.uclu a>div{padding:14px}
+.mini{width:56px;height:36px;object-fit:cover;border-radius:6px;vertical-align:middle}
+@media(max-width:900px){header .nav{display:none}#ara{order:9;flex-basis:100%}.logo{margin-right:auto}.uclu{grid-template-columns:1fr 1fr}.uclu h2{grid-column:1/-1;font-size:28px}.uclu a:last-child{display:none}}
+@media(max-width:720px){main{padding:14px}.slayt{height:auto;display:flex;flex-direction:column}.slayt>img{position:static;height:210px;object-position:right}.slayt>.kutu{position:static;width:auto;padding:20px;box-shadow:none;flex:1}.slayt h1{font-size:26px}.ok-btn{top:105px;width:40px;height:40px}.ok-btn.sol{left:6px}.ok-btn.sag{right:6px}}
+@media(max-width:480px){header{gap:8px;padding:10px 12px}.logo{font-size:19px}header .btn{padding:7px 10px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="demo">Prototip: tüm kişiler ve veriler örnektir. Değişiklikler sayfa yenilenince sıfırlanır.</div>
+<header id="hd"></header>
+<main id="app"></main>
+<footer>MD Education · Prototip</footer>
+<div id="toast" role="status"></div>
+<script>
+const $=s=>document.querySelector(s);
+const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const renk=['#2f8f5b','#d64570','#2f6fd0','#7a4bd0','#e07b24','#0f8b8d','#8a5a3b'];
+let nid=1;
+function ders(ad,kat,hafta,hoca,fiyat,kaz,konu){return{id:'d'+nid++,ad,kat,hafta,hoca,fiyat,kaz,plan:Array.from({length:hafta},(_,i)=>({konu:konu[i]||(i==hafta-1?'Final projesi ve değerlendirme':'Uygulama ve tekrar '+(i+1)),gunluk:'',kayit:i<3}))}}
+const db={
+hocalar:['Elif Yıldız','Mert Kaya','Zeynep Arslan','Can Demir'],
+kurumlar:[{ad:'Örnek Kurum A',sehir:'İstanbul'}],
+dersler:[
+ders('Minecraft Education Edition','Kodlama',8,'Mert Kaya',3200,['Blok kodlama ile dünya tasarlar','Takım halinde problem çözer','Basit algoritmalar kurar'],['Dünyaya giriş','Agent ile hareket','Döngüler','Koşullar']),
+ders('YouTube ve Sosyal Medya','Medya',8,'Zeynep Arslan',2800,['Güvenli ve etik paylaşım yapar','Video senaryosu yazar','Temel kurgu yapar'],['Dijital güvenlik','İçerik fikri','Senaryo','Çekim teknikleri']),
+ders('Python Ortaokul','Kodlama',12,'Mert Kaya',4500,['Değişken ve koşulları kullanır','Döngü yazar','Küçük bir oyun geliştirir'],['Python ile tanışma','Değişkenler','Koşullar','Döngüler','Listeler','Fonksiyonlar']),
+ders('Python Lise','Kodlama',12,'Can Demir',5200,['Fonksiyon ve veri yapıları kullanır','Dosya işlemleri yapar','Proje sunar'],['Temel söz dizimi','Veri tipleri','Fonksiyonlar','Sözlükler','Dosyalar','Nesne tabanlı giriş']),
+ders('Scratch','Kodlama',8,'Elif Yıldız',2600,['Animasyon hazırlar','Olay tabanlı düşünür','Kendi oyununu yapar'],['Sahne ve karakter','Hareket','Olaylar','Döngüler']),
+ders('İngilizce','Dil',12,'Elif Yıldız',4800,['Günlük konuşma kurar','Kelime dağarcığını geliştirir','Kısa metin yazar'],['Tanışma','Günlük rutin','Okul hayatı','Hobiler']),
+ders('Bireysel Mentörlük','Mentörlük',8,'Zeynep Arslan',6000,['Kişisel hedef belirler','Çalışma planı oluşturur'],['Tanışma ve hedef','Güçlü yönler','Plan','Takip']),
+ders('Öğrenci Koçluğu','Koçluk',12,'Can Demir',6400,['Zaman yönetimi yapar','Sınav kaygısıyla başa çıkma yolları öğrenir'],['İhtiyaç analizi','Zaman yönetimi','Verimli çalışma','Motivasyon'])
+],
+ogrenciler:[
+{ad:'Ada Y.',sinif:'6. sınıf',veli:'Selin Y.',dersler:['d1','d3']},
+{ad:'Efe K.',sinif:'7. sınıf',veli:'Burak K.',dersler:['d3','d5']},
+{ad:'Duru A.',sinif:'6. sınıf',veli:'Aylin A.',dersler:['d1','d3','d6']}],
+veliler:['Selin Y.','Burak K.','Aylin A.'],
+yoklama:{'d3|1|Ada Y.':true,'d3|2|Ada Y.':false,'d3|3|Ada Y.':true,'d1|1|Ada Y.':true,'d1|2|Ada Y.':true,'d1|3|Ada Y.':true},
+odevler:[{id:1,ders:'d3',baslik:'Hesap makinesi programı',son:'2026-12-02',teslim:{}},{id:2,ders:'d1',baslik:'Agent ile köprü kur',son:'2026-11-29',teslim:{'Ada Y.':true}}],
+odemeler:[{ogr:'Ada Y.',ne:'Python Ortaokul 1. taksit',tutar:2250,ok:true},{ogr:'Ada Y.',ne:'Python Ortaokul 2. taksit',tutar:2250,ok:false},{ogr:'Ada Y.',ne:'Minecraft Education Edition',tutar:3200,ok:true}],
+basvuru:[]
+};
+
+/* Özgün ders çizimleri (400x250) */
+const R=(x,y,w,h,f,r=0,e='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}" ${e}/>`;
+const C=(x,y,r,f,e='')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" ${e}/>`;
+const P=(d,f,e='')=>`<path d="${d}" fill="${f}" ${e}/>`;
+const T=(x,y,t,z,f,e='')=>`<text x="${x}" y="${y}" font-size="${z}" fill="${f}" font-family="monospace" font-weight="700" ${e}>${t}</text>`;
+const cizgi=(c,w=6)=>`stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"`;
+const kup=(x,y,t,l,r)=>P(`M${x} ${y}l30 -15 30 15 -30 15z`,t)+P(`M${x} ${y}l30 15v32l-30 -15z`,l)+P(`M${x+60} ${y}l-30 15v32l30 -15z`,r);
+const insan=(x,y,govde,ten='#f2b890',sac='#3b2a4a')=>P(`M${x-34} ${y+92}q0 -58 34 -58t34 58z`,govde)+C(x,y+8,24,ten)+P(`M${x-25} ${y+8}q0 -30 25 -28t25 28q-14 -16 -50 0z`,sac)+C(x-8,y+10,2.6,'#2b2140')+C(x+8,y+10,2.6,'#2b2140')+P(`M${x-8} ${y+19}q8 7 16 0`,'none',cizgi('#2b2140',2.5));
+const kod=(satir)=>R(62,46,276,166,'#16132e',14)+R(62,46,276,28,'#2a2552',14)+C(80,60,5,'#ff6b6b')+C(97,60,5,'#ffd166')+C(114,60,5,'#4ade80')+satir.map(([t,c,i],n)=>T(82+i*18,102+n*27,t,16,c)).join('');
+const CIZIM={
+blok:['#5ec8f2','#bfeaff',C(335,48,24,'#ffe066')+[0,1,2,3,4].map(i=>kup(35+i*60,182,'#6fcf63','#8a5a3b','#704529')).join('')+kup(35,135,'#6fcf63','#8a5a3b','#704529')+kup(275,135,'#c9ced8','#9aa1b1','#7d8496')+kup(275,88,'#ffb347','#e8892b','#c96f18')+R(160,108,56,48,'#fff',12)+R(170,118,36,18,'#2b2140',6)+C(180,127,4,'#5ef2c2')+C(196,127,4,'#5ef2c2')+R(172,156,32,18,'#e4e1ef',5)+P('M188 108v-14','none',cizgi('#fff',4))+C(188,90,6,'#ff6b6b')],
+medya:['#ff5f8f','#ff9a5a',C(110,112,66,'none',cizgi('#fff6d5',14))+insan(110,92,'#5b3fd6')+P('M110 188v40M82 232l28 -22 28 22','none',cizgi('#3b2050',7))+R(224,56,112,172,'#2b1840',20)+R(233,70,94,142,'#fff',10)+R(241,80,78,64,'#8fd3ff',8)+P('M268 98l30 16 -30 16z','#5b3fd6')+R(241,154,70,8,'#d9d4ea',4)+R(241,170,50,8,'#d9d4ea',4)+P('M255 200c-14 -9 -14 -22 -5 -22 4 0 5 4 5 4s1 -4 5 -4c9 0 9 13 -5 22z','#ff4d7a')+C(356,60,17,'#fff')+T(350,67,'♪',20,'#ff5f8f')+C(200,40,11,'#ffe066')],
+kodo:['#3b6df0','#6ee7d8',kod([['isim = "Ada"','#ffd166',0],['for i in range(3):','#c4b5fd',0],['print(isim)','#6ee7b7',1],['# harika!','#8b86b0',1]])+C(338,200,30,'#ffd166')+T(325,208,'&lt;/&gt;',17,'#2b2140')+C(52,52,18,'#fff','opacity=".5"')],
+kodl:['#2a1b6b','#8b3fd9',kod([['def analiz(veri):','#c4b5fd',0],['toplam = sum(veri)','#ffd166',1],['return toplam','#6ee7b7',1],['analiz([7, 9, 8])','#7dd3fc',0]])+R(288,150,92,76,'#fff',12)+[28,44,34,56].map((h,i)=>R(300+i*19,214-h,12,h,['#ff8a3d','#1749b3','#22c1a0','#ff5f8f'][i],3)).join('')],
+oyun:['#ffb02e','#ff6a3d',[['#4b8df8',40,48,118],['#8b5cf6',58,86,132],['#22c55e',58,124,104],['#ec4899',40,162,126]].map(([c,x,y,w])=>R(x,y,w,32,c,9)+R(x+16,y+28,24,9,c,4)+R(x+14,y+13,w-44,7,'#fff',3,'opacity=".8"')).join('')+P('M285 42c38 26 42 78 22 122h-44c-20 -44 -16 -96 22 -122z','#fff')+C(285,100,17,'#5ec8f2',cizgi('#2b2140',5))+P('M263 138l-28 36 34 -8zM307 138l28 36 -34 -8z','#e83e5c')+P('M270 170q15 52 30 0z','#ffe066')+[[222,54],[354,70],[345,192],[220,210]].map(([x,y])=>P(`M${x} ${y-11}l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z`,'#fff')).join('')],
+dil:['#0ea5a4','#34d399',R(38,40,176,86,'#fff',22)+P('M74 122l-6 30 36 -28z','#fff')+T(66,95,'Hello!',34,'#0f766e')+R(190,106,176,80,'#2b2160',22)+P('M322 182l14 30 -42 -28z','#2b2160')+T(214,156,'Hi there!',25,'#fff')+R(52,178,52,52,'#ffd166',10)+T(66,216,'A',36,'#2b2140')+R(112,192,38,38,'#ff8a3d',8)+T(122,221,'B',27,'#fff')+C(318,54,30,'#bff3e4')+P('M290 54h56M318 26q-24 28 0 56q24 -28 0 -56','none',cizgi('#0f766e',3))],
+mentor:['#6d4aff','#c96bf0',insan(120,112,'#ffb02e')+insan(280,112,'#22c1a0','#d99a6c','#1f1830')+R(40,204,320,12,'#fff',6)+R(168,178,64,28,'#2b2140',5)+C(200,60,32,'#ffe066')+R(188,86,24,18,'#fff',4)+P('M190 62l10 10 10 -10M200 72v14','none',cizgi('#b7791f',4))+P('M200 12v8M148 60h10M242 60h10M163 24l7 7M237 24l-7 7','none',cizgi('#fff',5))],
+koc:['#1e3a8a','#38bdf8',C(325,52,26,'#ffe9a8')+R(0,249,400,180,'#243b80')+P('M0 250L120 110 190 190 262 78 400 250z','#2f4ea8')+P('M0 250L90 180 170 240 260 150 400 250z','#243b80')+P('M262 78l-23 36 14 -6 10 12 10 -12 17 6z','#fff')+P('M262 78V36','none',cizgi('#fff',4))+P('M264 36h40l-10 12 10 12h-40z','#ff8a3d')+P('M40 238q90 -10 90 -48t80 -36 52 -76','none',cizgi('#ffe066',4)+' stroke-dasharray="2 12"')+C(64,70,32,'#fff')+C(64,70,21,'#ff5f6d')+C(64,70,10,'#fff')]
+};
+function gorsel(d,genis,kare){
+if(d.foto)return d.foto;
+const a=d.ad.toLocaleLowerCase('tr');
+const t=a.includes('minecraft')?'blok':a.includes('youtube')?'medya':a.includes('lise')?'kodl':a.includes('python')?'kodo':a.includes('scratch')?'oyun':a.includes('ingilizce')?'dil':a.includes('mentör')?'mentor':a.includes('koçlu')?'koc':({Kodlama:'kodo',Medya:'medya',Dil:'dil','Mentörlük':'mentor','Koçluk':'koc'}[d.kat]||'koc');
+const [c1,c2,ic]=CIZIM[t];
+return 'data:image/svg+xml,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${genis?'-330 -5 740 260':kare?'0 -75 400 400':'0 0 400 250'}" preserveAspectRatio="${genis?'xMaxYMid':'xMidYMid'} slice"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>${R(-600,-100,1200,450,'url(#g)')}${ic}</svg>`)}
+const img=(d,c='')=>`<img class="${c}" src="${gorsel(d)}" alt="${E(d.ad)} dersi görseli">`;
+const SIMDI=3; // örnek veride dönemin bulunduğu hafta
+const roller={admin:'Admin',kurum:'Kurum',ogretmen:'Öğretmen',ogrenci:'Öğrenci',veli:'Veli'};
+const kisi={admin:'Sistem Yöneticisi',kurum:'Örnek Kurum A',ogretmen:'Mert Kaya',ogrenci:'Ada Y.',veli:'Selin Y.'};
+let ara='',rol=null,tab=0,kat='Tümü',sec={d:'d3',h:SIMDI};
+const D=id=>db.dersler.find(d=>d.id===id);
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2200)}
+const tablo=(b,r)=>`<div class="tw"><table><tr>${b.map(x=>`<th>${x}</th>`).join('')}</tr>${r.length?r.map(s=>`<tr>${s.map(x=>`<td>${x}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${b.length}" class="mut">Henüz kayıt yok.</td></tr>`}</table></div>`;
+const stat=a=>`<div class="grid">${a.map(([n,v])=>`<div class="card stat"><b>${v}</b>${n}</div>`).join('')}</div>`;
+const alan=(ad,l,tip='text',ek='')=>`<div><label>${l}<input name="${ad}" type="${tip}" required ${ek}></label></div>`;
+const secim=(ad,l,o)=>`<div><label>${l}<select name="${ad}">${o.map(x=>Array.isArray(x)?`<option value="${E(x[0])}">${E(x[1])}</option>`:`<option>${E(x)}</option>`).join('')}</select></label></div>`;
+const form=(f,ic,btn)=>`<form class="card" data-f="${f}">${ic}<div><button class="btn">${btn}</button></div></form>`;
+const kart=d=>`<a class="card" href="#${d.id}">${img(d,'cover')}<div style="padding:10px 4px 0"><span class="tag">${E(d.kat)}</span><h3 style="margin-top:6px">${E(d.ad)}</h3><div class="mut">${d.hafta} hafta · ${E(d.hoca)}</div></div></a>`;
+
+function header(){if(document.activeElement&&document.activeElement.id=='ara')return;$('#hd').innerHTML=`<a class="logo" href="#ana">MD<span> Education</span></a><a class="nav" href="#ana" data-a="git">Keşfedin</a><input id="ara" type="search" placeholder="Dilediğiniz dersi arayın" aria-label="Ders ara" value="${E(ara)}"><a class="nav" href="#giris">Kurumlar için</a><a class="nav" href="#kayit">Eğitim verin</a>`+(rol?`<a href="#panel">Panelim</a><span class="tag">${roller[rol]}: ${E(kisi[rol])}</span><button class="btn o s" data-a="cikis">Çıkış</button>`:`<a class="btn o" href="#giris">Oturum aç</a><a class="btn" href="#kayit">Kaydol</a>`)}
+function liste_(){const q=ara.toLocaleLowerCase('tr');return db.dersler.filter(d=>(kat=='Tümü'||d.kat==kat)&&(d.ad+' '+d.kat).toLocaleLowerCase('tr').includes(q)).map(kart).join('')||'<p class="mut">Aramanıza uygun ders bulunamadı.</p>'}
+function ana(){
+const liste=[...db.dersler].reverse();
+const yeni=liste.map(d=>`<a href="#${d.id}">${img(d)}<div><span class="tag">Yeni</span> <span class="mut">${d.hafta} hafta</span><br><b>${E(d.ad)}</b></div></a>`).join('');
+const one=[['Python Ortaokul','Çocuğunuz kendi oyununu kodlasın'],['Minecraft','Oynarken algoritma öğrensin'],['İngilizce','İngilizceyi konuşarak geliştirsin'],['Koçluk','Hedefine planla ilerlesin']].map(([k,b])=>[db.dersler.find(d=>d.ad.includes(k)),b]).filter(x=>x[0]);
+const kats=['Tümü',...new Set(db.dersler.map(d=>d.kat))];
+const neden=[['Yoklama','Derse katılımı hafta hafta görürsünüz.'],['Ders kaydı','Kaçırılan dersin kaydı yüklendiğinde izlenir.'],['Ödev takibi','Verilen ve teslim edilen ödevleri izlersiniz.'],['Kazanımlar','Dersin hedeflerini baştan bilirsiniz.']];
+const uc=[['Kodlama','Oyunla başlayıp kod yazmaya','Python Ortaokul'],['Dil','Kendine güvenle konuşmaya','İngilizce'],['Koçluk','Hedefine planlı ilerlemeye','Koçlu']].map(([e,b,k])=>[e,b,db.dersler.find(d=>d.ad.includes(k))]).filter(x=>x[2]);
+return `<section class="vitrin" aria-label="Öne çıkan dersler"><div class="slaytlar" id="slaytlar">${one.map(([d,b])=>`<article class="slayt"><img src="${gorsel(d,true)}" alt="${E(d.ad)} dersi görseli"><div class="kutu"><span class="tag">${E(d.ad)} · ${d.hafta} hafta</span><h1>${b}</h1><p>${E(d.kaz.join(' · '))}</p><a class="btn big" href="#${d.id}">Dersi inceleyin</a></div></article>`).join('')}</div><button class="ok-btn sol" data-a="kaydir" data-v="-1" aria-label="Önceki">‹</button><button class="ok-btn sag" data-a="kaydir" data-v="1" aria-label="Sonraki">›</button></section>
+<section class="uclu"><h2>Çocuğunuz <i>geleceğin</i> becerilerini edinsin</h2>${uc.map(([e,b,d])=>`<a href="#${d.id}"><img src="${gorsel(d,false,true)}" alt="${E(d.ad)} dersi görseli"><div><span class="tag">${e}</span><h3>${b}</h3></div></a>`).join('')}</section>
+<h2>Yeni eklenen eğitimler</h2><div class="marq"><div class="track">${yeni}${yeni}</div></div>
+<h2 id="dersler">Tüm dersler</h2><div class="chips">${kats.map(k=>`<button data-a="kat" data-v="${E(k)}" class="${k==kat?'on':''}">${E(k)}</button>`).join('')}</div>
+<div class="grid dersler" id="liste">${liste_()}</div>
+<section class="veli"><h2 style="margin-top:0;font-size:28px">Veli olarak her adımı görün</h2><p class="mut">Çocuğunuzun ders süreci tek panelde.</p><div class="grid">${neden.map(([b,m],i)=>`<div class="card"><span class="no">${i+1}</span><h3>${b}</h3><div class="mut">${m}</div></div>`).join('')}</div><p style="margin-bottom:0"><a class="btn big acc" href="#kayit">Ücretsiz kaydolun</a></p></section>`}
+function detay(d){return `<p><a href="#ana">← Tüm dersler</a></p>${img(d,'detay-img')}<div class="hero"><span class="tag">${E(d.kat)}</span><h1>${E(d.ad)}</h1><p>${d.hafta} hafta · Öğretmen: ${E(d.hoca)} · ${d.fiyat.toLocaleString('tr')} TL (örnek)</p><button class="btn" style="background:var(--acc);border-color:var(--acc)" data-a="basvur" data-v="${d.id}">Derse başvur</button></div>
+<h2>Kazanımlar</h2><div class="card"><ul>${d.kaz.map(k=>`<li>${E(k)}</li>`).join('')||'<li>Öğretmen henüz eklemedi.</li>'}</ul></div>
+<h2>Haftalık plan</h2>${tablo(['Hafta','Konu'],d.plan.map((p,i)=>[i+1,E(p.konu)]))}`}
+function giris(){return `<h1>Giriş yap</h1><p class="mut">Prototipte şifre yoktur. Bir rol seçip panelini inceleyin.</p><div class="grid">${Object.keys(roller).map(r=>`<div class="card"><h3>${roller[r]}</h3><p class="mut">${E(kisi[r])}</p><button class="btn" data-a="gir" data-v="${r}">${roller[r]} olarak gir</button></div>`).join('')}</div>`}
+function kayit(){return `<h1>Kaydol</h1><p class="mut">Veli, öğrenci ve öğretmen başvurur; admin onaylar. Kurum hesabını admin açar. Gerçek bilgi girmeyin.</p>${form('kayit',secim('tip','Rol',['Veli','Öğrenci','Öğretmen'])+alan('ad','Ad soyad'),'Başvuru gönder')}`}
+
+const sekme={admin:['Özet','Kurumlar','Dersler','Öğretmenler','Başvurular'],kurum:['Özet','Öğretmenler','Veliler','Öğrenciler'],ogretmen:['Kazanım ve plan','Yoklama','Ödevler','Öğrencilerim'],ogrenci:['Haftalarım','Ödevlerim'],veli:['Genel durum','Yoklama','Ödevler','Ödemeler']};
+const ozet=()=>stat([['Öğrenci',db.ogrenciler.length],['Öğretmen',db.hocalar.length],['Ders',db.dersler.length],['Veli',db.veliler.length],['Kurum',db.kurumlar.length]])+`<h2>Verilen dersler</h2>`+tablo(['Ders','Öğretmen','Süre','Öğrenci'],db.dersler.map(d=>[E(d.ad),E(d.hoca),d.hafta+' hafta',db.ogrenciler.filter(o=>o.dersler.includes(d.id)).length]));
+const hocaT=()=>form('hoca',alan('ad','Öğretmen adı'),'Öğretmen ekle')+'<h2>Öğretmenler</h2>'+tablo(['Ad','Dersleri'],db.hocalar.map(h=>[E(h),E(db.dersler.filter(d=>d.hoca==h).map(d=>d.ad).join(', ')||'—')]));
+const dersSec=l=>`<div class="chips">${l.map(d=>`<button data-a="ders" data-v="${d.id}" class="${d.id==sec.d?'on':''}">${E(d.ad)}</button>`).join('')}</div>`;
+const haftaSec=d=>`<div class="chips">${d.plan.map((_,i)=>`<button data-a="hafta" data-v="${i+1}" class="${i+1==sec.h?'on':''}">${i+1}. hf</button>`).join('')}</div>`;
+const devam=(d,o)=>{const k=Object.keys(db.yoklama).filter(x=>x.startsWith(d+'|')&&x.endsWith('|'+o));return k.length?Math.round(100*k.filter(x=>db.yoklama[x]).length/k.length)+'%':'—'};
+const durum=v=>v===undefined?'<span class="tag">Alınmadı</span>':v?'<span class="tag ok">Katıldı</span>':'<span class="tag bad">Yok</span>';
+
+const panel={
+admin:[ozet,
+()=>form('kurum',alan('ad','Kurum adı')+alan('sehir','Şehir'),'Kurum aç')+'<h2>Kurumlar</h2>'+tablo(['Kurum','Şehir'],db.kurumlar.map(k=>[E(k.ad),E(k.sehir)])),
+()=>form('ders',alan('ad','Ders adı')+alan('kat','Kategori')+secim('hafta','Süre (hafta)',['8','12'])+secim('hoca','Öğretmen',db.hocalar)+alan('fiyat','Ücret (TL)','number','min="0"'),'Ders ekle')+'<h2>Dersler</h2>'+tablo(['Ders','Öğretmen','Süre',''],db.dersler.map(d=>[`<img class="mini" src="${gorsel(d)}" alt=""> <a href="#${d.id}">${E(d.ad)}</a>`,E(d.hoca),d.hafta+' hafta',`<label class="btn o s">Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label> <button class="btn o s" data-a="sil" data-v="${d.id}">Kaldır</button>`])),
+hocaT,
+()=>tablo(['Ad','Rol / talep',''],db.basvuru.map((b,i)=>[E(b.ad),E(b.tip),`<button class="btn s" data-a="onay" data-v="${i}">Onayla</button>`]))],
+kurum:[ozet,hocaT,
+()=>form('veli',alan('ad','Veli adı'),'Veli ekle')+'<h2>Veliler</h2>'+tablo(['Veli','Öğrencisi'],db.veliler.map(v=>[E(v),E(db.ogrenciler.filter(o=>o.veli==v).map(o=>o.ad).join(', ')||'—')])),
+()=>form('ogr',alan('ad','Öğrenci adı')+alan('sinif','Sınıf')+secim('veli','Veli',db.veliler)+secim('ders','Ders',db.dersler.map(d=>[d.id,d.ad])),'Öğrenci ekle')+'<h2>Öğrenciler</h2>'+tablo(['Öğrenci','Sınıf','Veli','Ders sayısı'],db.ogrenciler.map(o=>[E(o.ad),E(o.sinif),E(o.veli),o.dersler.length]))]
+};
+function hocaPanel(){
+const l=db.dersler.filter(d=>d.hoca==kisi.ogretmen);if(!l.length)return'<p>Atanmış dersiniz yok.</p>';
+if(!l.some(d=>d.id==sec.d))sec.d=l[0].id;const d=D(sec.d);if(sec.h>d.hafta)sec.h=1;
+const ogr=db.ogrenciler.filter(o=>o.dersler.includes(d.id));
+if(tab==0){const p=d.plan[sec.h-1];return dersSec(l)+`<h2>Kazanımlar</h2><div class="card"><ul>${d.kaz.map(k=>`<li>${E(k)}</li>`).join('')}</ul></div>${form('kaz',alan('kaz','Yeni kazanım'),'Kazanım ekle')}<h2>Ders planı</h2>${haftaSec(d)}<form class="card" data-f="plan" style="grid-template-columns:1fr"><label>Haftanın konusu ve içeriği<input name="konu" value="${E(p.konu)}" required></label><label>Günlük plan (gün gün yazın)<textarea name="gunluk" rows="4">${E(p.gunluk)}</textarea></label><label><input type="checkbox" name="kayit" style="width:auto" ${p.kayit?'checked':''}> Ders kaydı yüklendi</label><div><button class="btn">Planı kaydet</button></div></form><h2>Dönem planı</h2>${tablo(['Hafta','Konu','Kayıt'],d.plan.map((p,i)=>[i+1,E(p.konu),p.kayit?'Var':'—']))}`}
+if(tab==1)return dersSec(l)+haftaSec(d)+tablo(['Öğrenci','Durum','İşaretle'],ogr.map(o=>{const k=`${d.id}|${sec.h}|${o.ad}`;return[E(o.ad),durum(db.yoklama[k]),`<button class="btn o s" data-a="yok" data-v="${E(k)}" data-x="1">Var</button> <button class="btn o s" data-a="yok" data-v="${E(k)}" data-x="0">Yok</button>`]}));
+if(tab==2)return dersSec(l)+form('odev',alan('baslik','Ödev başlığı')+alan('son','Son teslim','date'),'Ödev ver')+'<h2>Verilen ödevler</h2>'+tablo(['Ödev','Son teslim','Teslim'],db.odevler.filter(x=>x.ders==d.id).map(x=>[E(x.baslik),E(x.son),`${ogr.filter(o=>x.teslim[o.ad]).length}/${ogr.length}`]));
+return dersSec(l)+'<p class="mut">Gizlilik: öğretmen veli, iletişim ve ödeme bilgilerini görmez.</p>'+tablo(['Öğrenci','Sınıf','Devam'],ogr.map(o=>[E(o.ad),E(o.sinif),devam(d.id,o.ad)]))}
+function ogrPanel(veli){
+const o=db.ogrenciler.find(x=>x.ad=='Ada Y.');const l=o.dersler.map(D).filter(Boolean);
+if(!l.length)return'<p>Kayıtlı ders yok.</p>';
+if(!l.some(d=>d.id==sec.d))sec.d=l[0].id;const d=D(sec.d);
+const odev=db.odevler.filter(x=>x.ders==d.id);
+const odevT=()=>tablo(['Ödev','Son teslim','Durum'],odev.map(x=>[E(x.baslik),E(x.son),x.teslim[o.ad]?'<span class="tag ok">Teslim edildi</span>':veli?'<span class="tag bad">Bekliyor</span>':`<button class="btn s" data-a="teslim" data-v="${x.id}">Teslim ettim</button>`]));
+const yokT=()=>tablo(['Hafta','Konu','Yoklama','Ders kaydı'],d.plan.slice(0,SIMDI).map((p,i)=>{const v=db.yoklama[`${d.id}|${i+1}|${o.ad}`];return[i+1,E(p.konu),durum(v),v===false?(p.kayit?`<button class="btn s" data-a="izle">Kaydı izle</button>`:'Henüz yüklenmedi'):'—']}));
+const ilerleme=`<div class="card"><b>${SIMDI}. hafta / ${d.hafta}</b><div class="bar"><i style="width:${100*SIMDI/d.hafta}%"></i></div></div>`;
+if(!veli)return dersSec(l)+(tab==0?ilerleme+'<h2>İşlenen konular</h2>'+yokT():odevT());
+if(tab==3)return tablo(['Açıklama','Tutar','Durum'],db.odemeler.filter(p=>p.ogr==o.ad).map(p=>[E(p.ne),p.tutar.toLocaleString('tr')+' TL',p.ok?'<span class="tag ok">Ödendi</span>':'<span class="tag bad">Bekliyor</span>']));
+if(tab==1)return dersSec(l)+yokT();if(tab==2)return dersSec(l)+odevT();
+return dersSec(l)+stat([['Devam',devam(d.id,o.ad)],['Teslim edilen ödev',`${odev.filter(x=>x.teslim[o.ad]).length}/${odev.length}`],['Bekleyen ödeme',db.odemeler.filter(p=>p.ogr==o.ad&&!p.ok).reduce((a,p)=>a+p.tutar,0).toLocaleString('tr')+' TL']])+'<h2>İlerleme</h2>'+ilerleme+`<h2>Hedeflenen kazanımlar</h2><div class="card"><ul>${d.kaz.map(k=>`<li>${E(k)}</li>`).join('')}</ul></div>`}
+function panelim(){
+if(!rol)return giris();
+const ic=rol=='ogretmen'?hocaPanel():rol=='ogrenci'?ogrPanel(false):rol=='veli'?ogrPanel(true):panel[rol][tab]();
+return `<h1>${roller[rol]} paneli</h1>${rol=='veli'?'<p class="mut">Öğrenciniz: Ada Y.</p>':''}<div class="tabs">${sekme[rol].map((s,i)=>`<button data-a="tab" data-v="${i}" class="${i==tab?'on':''}">${s}</button>`).join('')}</div>${ic}`}
+function ciz(){const h=location.hash.slice(1);header();$('#app').innerHTML=h=='giris'?giris():h=='kayit'?kayit():h=='panel'?panelim():D(h)?detay(D(h)):ana()}
+function git(h){if(location.hash=='#'+h)ciz();else location.hash=h}
+document.addEventListener('click',e=>{
+const b=e.target.closest('[data-a]');if(!b)return;const v=b.dataset.v,a=b.dataset.a;
+if(a=='gir'){rol=v;tab=0;sec={d:v=='ogretmen'?'d1':'d3',h:SIMDI};return git('panel')}
+if(a=='cikis'){rol=null;return git('ana')}
+if(a=='git'){e.preventDefault();ara='';kat='Tümü';$('#ara').value='';git('ana');return setTimeout(()=>$('#dersler').scrollIntoView({behavior:'smooth'}),60)}
+if(a=='kaydir')return slayt(+v);
+if(a=='kat'){kat=v;const y=scrollY;ciz();return scrollTo(0,y)}
+if(a=='tab')tab=+v;
+if(a=='ders')sec.d=v;
+if(a=='hafta')sec.h=+v;
+if(a=='yok'){db.yoklama[v]=b.dataset.x=='1';toast('Yoklama kaydedildi')}
+if(a=='teslim'){db.odevler.find(x=>x.id==v).teslim[kisi.ogrenci]=true;toast('Ödev teslim edildi')}
+if(a=='izle')return toast('Gerçek sistemde ders videosu burada açılır');
+if(a=='sil'){db.dersler=db.dersler.filter(d=>d.id!=v);toast('Ders kaldırıldı')}
+if(a=='onay'){const x=db.basvuru.splice(+v,1)[0];if(x.tip=='Veli')db.veliler.push(x.ad);if(x.tip=='Öğretmen')db.hocalar.push(x.ad);if(x.tip=='Öğrenci')db.ogrenciler.push({ad:x.ad,sinif:'—',veli:'—',dersler:[]});toast('Onaylandı')}
+if(a=='basvur'){if(!rol){toast('Başvuru için önce kaydolun');return git('kayit')}db.basvuru.push({ad:kisi[rol],tip:'Ders talebi: '+D(v).ad});return toast('Talebiniz admine iletildi')}
+ciz()});
+document.addEventListener('submit',e=>{
+e.preventDefault();const f=e.target,x=Object.fromEntries(new FormData(f)),t=f.dataset.f;
+for(const k in x)x[k]=x[k].trim();
+if(t=='kayit'){db.basvuru.push(x);f.reset();return toast('Başvuru alındı. Admin panelinde görünür.')}
+if(t=='kurum')db.kurumlar.push(x);
+if(t=='hoca')db.hocalar.push(x.ad);
+if(t=='veli')db.veliler.push(x.ad);
+if(t=='ogr')db.ogrenciler.push({ad:x.ad,sinif:x.sinif,veli:x.veli,dersler:[x.ders]});
+if(t=='ders')db.dersler.push(ders(x.ad,x.kat,+x.hafta,x.hoca,+x.fiyat,[],[]));
+if(t=='kaz')D(sec.d).kaz.push(x.kaz);
+if(t=='plan')Object.assign(D(sec.d).plan[sec.h-1],{konu:x.konu,gunluk:x.gunluk||'',kayit:!!x.kayit});
+if(t=='odev')db.odevler.push({id:Date.now(),ders:sec.d,...x,teslim:{}});
+toast('Kaydedildi');ciz()});
+function slayt(n){const k=$('#slaytlar');if(!k)return;const w=k.clientWidth,t=k.children.length,i=(Math.round(k.scrollLeft/w)+n+t)%t;k.scrollTo({left:i*w,behavior:'smooth'})}
+if(!matchMedia('(prefers-reduced-motion:reduce)').matches)setInterval(()=>{if(!$('.vitrin:hover,.vitrin:focus-within'))slayt(1)},5000);
+document.addEventListener('input',e=>{if(e.target.id!='ara')return;ara=e.target.value;if(!$('#liste')){location.hash='ana';return setTimeout(()=>$('#dersler').scrollIntoView(),60)}$('#liste').innerHTML=liste_();$('#dersler').scrollIntoView()});
+document.addEventListener('change',e=>{const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{D(id).foto=r.result;toast('Fotoğraf eklendi');ciz()};r.readAsDataURL(f)});
+addEventListener('hashchange',()=>{ciz();scrollTo(0,0)});
+ciz();
+</script>
+</body>
+</html>
