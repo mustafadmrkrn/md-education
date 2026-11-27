@@ -202,6 +202,7 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 .tehlike{background:#c0342b!important;color:#fff!important;border-color:#c0342b!important}
 .kayit{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;overflow-wrap:anywhere}.kayit>div:not(.eylem){flex:1 1 200px;min-width:0}.kayit small{display:block}.kayitik{display:flex;width:64px;height:44px;border-radius:10px;background:#1c1d1f;color:#fff;align-items:center;justify-content:center;flex:none}
 #oynatici{position:fixed;inset:0;background:rgba(10,10,20,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:90}#oynatici .pencere{background:#fff;color:#1c1d1f;border-radius:16px;width:min(760px,100%);max-height:100%;overflow:auto;padding:16px}#oynatici header{display:flex;justify-content:space-between;gap:12px;align-items:center;position:static;background:none;box-shadow:none;padding:0 0 12px}#oynatici video{width:100%;max-height:60vh;background:#000;border-radius:10px}.video-yok{display:grid;gap:10px;justify-items:center;text-align:center;background:#1c1d1f;color:#fff;border-radius:10px;padding:40px 16px}
+.riza{display:grid;gap:10px}.riza p{margin:0}.riza form{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}.riza .onay{align-items:flex-start}.riza .onay input{margin-top:4px;flex:none}
 </style>
 </head>
 <body>
@@ -537,6 +538,7 @@ Object.keys(db.yoklama).forEach(k=>{const [d,h,a]=k.split('|');if(a==eski){db.yo
 Object.keys(db.yokNot).forEach(k=>{const [d,h,a]=k.split('|');if(a==eski){db.yokNot[`${d}|${h}|${yeni}`]=db.yokNot[k];delete db.yokNot[k]}});
 db.odevler.forEach(x=>{if(eski in x.teslim){x.teslim[yeni]=x.teslim[eski];delete x.teslim[eski]}if(x.hedef)x.hedef=x.hedef.map(a=>a==eski?yeni:a)});
 db.odemeler.forEach(p=>{if(p.ogr==eski)p.ogr=yeni});
+if(db.riza[eski]){db.riza[yeni]=db.riza[eski];delete db.riza[eski]}
 if(kisi.ogrenci==eski)kisi.ogrenci=yeni}
 function ogrKaydet(f,x){
 const fd=new FormData(f),eski=x.eski,dersler=fd.getAll('dersler');
@@ -657,6 +659,15 @@ blok('video',`Eklenen kayıtlar (${l.length})`,l.length?l.map(h=>{const r=kayitA
 function kayitOgr(d,o,veli){
 const l=d.plan.map((_,i)=>i+1).filter(h=>kayitAl(d.id,h));
 return blok('video','Ders kayıtları',l.length?l.map(h=>kayitSatir(d,h,kayitAl(d.id,h),kayitAcik(d.id,h,o.ad)?izleBtn(d.id,h):`<span class="mut">${I('lock',13)} Derse ${veli?'katıldı':'katıldınız'}; kayıt yalnızca katılamayanlara açık</span>`)).join(''):bos('Bu derste henüz kayıt yok.'))}
+const RIZA={kayit:'Çocuğumun ses, görüntü, ad ve yazılı mesajlarının ders kaydında yer alabilmesi',saklama:'Ders kaydının bulut hizmetinde (ör. Google Drive; sunucular yurt dışında olabilir) saklanması'};
+const rizaTam=ad=>!!(db.riza[ad]?.kayit&&db.riza[ad]?.saklama);
+function rizaKart(o){const r=db.riza[o.ad];
+const metin=`<p>Kamera açmak zorunlu değildir. Her izni ayrı ayrı verebilirsiniz; izin vermemeniz çocuğunuzun derse katılmasını etkilemez ve izninizi dilediğiniz zaman geri çekebilirsiniz.</p><p class="mut">Örnek metindir. Gerçek kullanımdan önce aydınlatma ve açık rıza metni hukukçu tarafından hazırlanmalıdır.</p>`;
+const durumu=!r?['Yanıt bekleniyor','dikkat']:rizaTam(o.ad)?['İzin verildi','ok']:r.kayit||r.saklama?['Kısmi izin','dikkat']:['İzin verilmedi','bad'];
+return blok('shield-check','Video kaydı ve kişisel veri izni',`<div class="riza"><div class="satirbas"><b>${E(o.ad)}</b>${rozet_(durumu)}</div>${metin}<form data-f="riza"><input type="hidden" name="ad" value="${E(o.ad)}">${Object.entries(RIZA).map(([k,t])=>`<label class="onay"><input type="checkbox" name="${k}" ${r?.[k]?'checked':''}> <span>${t}</span></label>`).join('')}<div class="eylem sol"><button class="btn">${I('check',16)} ${r?'Seçimimi güncelle':'Seçtiklerime izin veriyorum'}</button><button type="button" class="btn s" data-a="rizared" data-v="${E(o.ad)}">${r&&(r.kayit||r.saklama)?'Tüm izinleri geri çek':'İzin vermiyorum'}</button></div></form>${r?`<small class="mut">Son yanıt: ${E(r.veli)} · ${tarih(r.tarih)}</small>`:''}</div>`)}
+function rizaOzet(d){const l=db.ogrenciler.filter(o=>o.aktif!==false&&o.dersler.includes(d.id));if(!l.length)return '';const yok=l.filter(o=>!rizaTam(o.ad));
+return blok('shield-check','Veli izin durumu',yok.length?`<p class="not">${I('info',16)} <span>Tam izni olmayanlar: <b>${yok.map(o=>E(o.ad)).join(', ')}</b>. Yüklemeden önce bu öğrencilerin görüntü, ses, ad ve mesajlarının kayıtta olmadığını kontrol edin.</span></p>`:'<p>Bu dersteki tüm öğrenciler için izin alınmış.</p>')}
+db.riza={};
 function oynaticiKapat(){document.getElementById('oynatici')?.remove()}
 function oynaticiAc(v){oynaticiKapat();const [d,h]=v.split('|'),k=kayitAl(d,h);if(!k)return;
 const x=document.createElement('div');x.id='oynatici';x.setAttribute('role','dialog');x.setAttribute('aria-modal','true');x.setAttribute('aria-label',k.baslik);
@@ -675,7 +686,7 @@ const ust=kutular([['book-open','Dersim',l.length,'#ea580c'],['users','Bu derste
 if(tab==0){const p=d.plan[sec.h-1];return ust+kazPanel(d)+blok('circle-plus','Kazanım ekle',form('kaz',alan('kaz','Yeni kazanım'),'Kazanım ekle'))+blok('calendar-days','Haftalık ve günlük plan',haftaSec(d)+`<form class="card" data-f="plan" style="grid-template-columns:1fr"><label>Haftanın konusu ve içeriği<input name="konu" value="${E(p.konu)}" required></label><label>Bu haftanın kazanımı<input name="kazanim" value="${E(p.kazanim||'')}"></label><label>Günlük plan (gün gün yazın)<textarea name="gunluk" rows="4">${E(p.gunluk)}</textarea></label><div><button class="btn">${I('save',16)} Planı kaydet</button></div></form>`)+blok('route','Dönem planı',`<ol class="zaman">${d.plan.map((p,i)=>`<li class="${i+1<simdi(d)?'gecti':i+1==simdi(d)?'simdi':''}"><i>${i+1}</i><div><b>${E(p.konu)}</b>${hk(p)}</div>${kayitAl(d.id,i+1)?`<span class="tag">${I('video',12)} Kayıt var</span>`:''}</li>`).join('')}</ol>`)}
 if(tab==1)return ust+yoklamaBlok(d,ogr);
 if(tab==2)return ust+odevHoca(d,ogr);
-if(tab==4)return ust+kayitHoca(d);
+if(tab==4)return ust+rizaOzet(d)+kayitHoca(d);
 return ust+`<p class="not">${I('lock',16)} Öğretmen veli, iletişim ve ödeme bilgilerini görmez.</p>`+blok('users','Öğrencilerim',`<div class="kisiler">${ogr.map(o=>`<div class="kisi">${avatar(o.ad,64)}<b>${E(o.ad)}</b><small>${E(o.sinif)}</small>${halka(oran(d.id,o.ad),'Devam','#059669')}</div>`).join('')}</div>`)}
 
 function ogrPanel(veli){
@@ -689,9 +700,9 @@ const odevT=()=>odevOgr(d,o,veli);
 const yokT=()=>blok('route','Hafta hafta işlenenler',`<ol class="zaman">${d.plan.map((p,i)=>{const gelmis=i<simdi(d),k=`${d.id}|${i+1}|${o.ad}`,v=db.yoklama[k];return `<li class="${i+1<simdi(d)?'gecti':i+1==simdi(d)?'simdi':''}"><i>${i+1}</i><div><b>${E(p.konu)}</b>${hk(p)}${gelmis?aciklama(k)+dersNotu(d.id,i+1):''}<div class="mut">${i+1==simdi(d)?'Bu hafta':gelmis?'İşlendi':'Sırada'}</div></div>${gelmis?durum(v):I('lock',16)}${gelmis&&['yok','mazeret','erken'].includes(v)?(kayitAl(d.id,i+1)?izleBtn(d.id,i+1):'<span class="mut">Kayıt henüz yüklenmedi</span>'):gelmis&&kayitAcik(d.id,i+1,o.ad)?izleBtn(d.id,i+1):''}</li>`}).join('')}</ol>`);
 if(!veli)return dersSec(l)+(tab==0?halkalar+yokT():tab==2?kayitOgr(d,o,false):odevT());
 if(tab==3)return kutular([['circle-check-big','Ödenen',tl(odendi),'#059669'],['clock','Bekleyen',tl(borc),'#ea580c'],['receipt','Kayıt sayısı',odeme.length,'#4f46e5']])+blok('wallet','Ödeme geçmişi',`<div class="liste">${odeme.map(p=>`<div class="satir"><div class="kim"><span class="buyuk">${I('receipt',22)}</span><div><b>${E(p.ne)}</b><div class="mut">${tl(p.tutar)}</div></div></div>${p.ok?'<span class="tag ok">Ödendi</span>':'<span class="tag bad">Bekliyor</span>'}</div>`).join('')}</div>`);
-if(tab==4)return dersSec(l)+kayitOgr(d,o,true);
+if(tab==4)return rizaKart(o)+dersSec(l)+kayitOgr(d,o,true);
 if(tab==1)return dersSec(l)+halkalar+yokT();if(tab==2)return dersSec(l)+odevT();
-return `<div class="profil">${avatar(o.ad,72)}<div><b>${E(o.ad)}</b><div class="mut">${E(o.sinif)} · ${l.length} derse kayıtlı</div></div></div>`+dersSec(l)+halkalar+kutular([['user-round','Öğretmen',E(d.hoca),'#4f46e5'],['notebook-pen','Bekleyen ödev',odev.length-teslim,'#db2777'],['wallet','Bekleyen ödeme',tl(borc),'#ea580c']])+kazPanel(d)}
+return `<div class="profil">${avatar(o.ad,72)}<div><b>${E(o.ad)}</b><div class="mut">${E(o.sinif)} · ${l.length} derse kayıtlı</div></div></div>`+rizaKart(o)+dersSec(l)+halkalar+kutular([['user-round','Öğretmen',E(d.hoca),'#4f46e5'],['notebook-pen','Bekleyen ödev',odev.length-teslim,'#db2777'],['wallet','Bekleyen ödeme',tl(borc),'#ea580c']])+kazPanel(d)}
 
 function panelim(){
 if(!rol)return giris();
@@ -723,6 +734,7 @@ if(a=='ytemizle'){Object.keys(db.yoklama).filter(k=>k.startsWith(`${v}|${sec.h}|
 if(a=='ykaydet')return toast('Açıklamalar kaydedildi')
 if(a=='izle')return oynaticiAc(v);
 if(a=='okapat')return oynaticiKapat();
+if(a=='rizared'){db.riza[v]={kayit:false,saklama:false,veli:kisi.veli,tarih:bugunStr()};toast('İzin verilmedi olarak kaydedildi')}
 if(a=='oform')od.form=!od.form;
 if(a=='oac'){od.ac=od.ac==v?null:v;od.sil=null}
 if(a=='ovazgec')od.sil=null;
@@ -756,6 +768,7 @@ if(!x.baslik||!x.aciklama)return toast('Başlık ve yönerge zorunlu');
 const hedef=fd.getAll('hedef');
 db.odevler.push({id:Date.now(),ders:sec.d,baslik:x.baslik,tur:x.tur,hafta:+x.hafta,aciklama:x.aciklama,kazanim:x.kazanim,link:x.link,dosya:file&&file.size?{ad:file.name,url:URL.createObjectURL(file)}:null,son:x.son,saat:x.saat,puan:+x.puan||100,sure:+x.sure||'',bicim:fd.getAll('bicim'),hedef:hedef.length?hedef:null,veliNot:x.veliNot,teslim:{}});
 od.form=false;toast('Ödev yayınlandı');return ciz()}
+if(t=='riza'){if(!x.kayit&&!x.saklama)return toast('İzin vermek için en az bir kutu seçin');db.riza[x.ad]={kayit:!!x.kayit,saklama:!!x.saklama,veli:kisi.veli,tarih:bugunStr()};toast('İzin tercihiniz kaydedildi');return ciz()}
 if(t=='teslimet'){const o=db.odevler.find(y=>y.id==x.id),file=x.dosya,eski=o.teslim[kisi.ogrenci];
 if(x.link&&!guvenli(x.link))return toast('Bağlantı https:// ile başlamalı');
 const dosya=file&&file.size?{ad:file.name,url:URL.createObjectURL(file)}:eski?.dosya||null;
