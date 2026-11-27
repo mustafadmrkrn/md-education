@@ -203,7 +203,7 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 .kayit{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px;overflow-wrap:anywhere}.kayit>div:not(.eylem){flex:1 1 200px;min-width:0}.kayit small{display:block}.kayitik{display:flex;width:64px;height:44px;border-radius:10px;background:#1c1d1f;color:#fff;align-items:center;justify-content:center;flex:none}
 #oynatici{position:fixed;inset:0;background:rgba(10,10,20,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:90}#oynatici .pencere{background:#fff;color:#1c1d1f;border-radius:16px;width:min(760px,100%);max-height:100%;overflow:auto;padding:16px}#oynatici header{display:flex;justify-content:space-between;gap:12px;align-items:center;position:static;background:none;box-shadow:none;padding:0 0 12px}#oynatici video{width:100%;max-height:60vh;background:#000;border-radius:10px}.video-yok{display:grid;gap:10px;justify-items:center;text-align:center;background:#1c1d1f;color:#fff;border-radius:10px;padding:40px 16px}
 .riza{display:grid;gap:10px}.riza p{margin:0}.riza form{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}.riza .onay{align-items:flex-start}.riza .onay input{margin-top:4px;flex:none}
-.belge{display:block;width:min(620px,100%);height:auto;margin:0 auto;border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(20,20,40,.12)}
+.aydinlatma{border:1px solid var(--line);border-radius:12px;padding:10px 14px}.aydinlatma summary{cursor:pointer;font-weight:600;color:#1749b3}.riza h4{margin:8px 0 2px}.belge{display:block;width:min(620px,100%);height:auto;margin:0 auto 16px;border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(20,20,40,.12)}
 </style>
 </head>
 <body>
@@ -660,35 +660,48 @@ blok('video',`Eklenen kayıtlar (${l.length})`,l.length?l.map(h=>{const r=kayitA
 function kayitOgr(d,o,veli){
 const l=d.plan.map((_,i)=>i+1).filter(h=>kayitAl(d.id,h));
 return blok('video','Ders kayıtları',l.length?l.map(h=>kayitSatir(d,h,kayitAl(d.id,h),kayitAcik(d.id,h,o.ad)?izleBtn(d.id,h):`<span class="mut">${I('lock',13)} Derse ${veli?'katıldı':'katıldınız'}; kayıt yalnızca katılamayanlara açık</span>`)).join(''):bos('Bu derste henüz kayıt yok.'))}
-const RIZA={kayit:'Çocuğumun ses, görüntü, ad ve yazılı mesajlarının ders kaydında yer alabilmesi',saklama:'Ders kaydının bulut hizmetinde (ör. Google Drive; sunucular yurt dışında olabilir) saklanması'};
-const rizaTam=ad=>!!(db.riza[ad]?.kayit&&db.riza[ad]?.saklama);
+const RIZA={kayit:'Çevrim içi derste çocuğuma ait görüntü, ses, ad soyad, yazılı mesaj ve ekran paylaşımının ders kaydına alınmasına açık rıza veriyorum.',paylasim:'Çocuğumun yer aldığı ders kaydının, aynı derse kayıtlı olup derse katılamayan öğrencilere ve velilerine izletilmesine açık rıza veriyorum.'};
+const AYDINLATMA=[
+['1. Veri sorumlusu','Kurum unvanı: ____________________  Adres: ____________________  Başvuru e-postası: ____________________'],
+['2. İşlenen veriler','Öğrencinin adı soyadı ve sınıfı; velinin adı soyadı; kayda girmesi hâlinde öğrencinin görüntüsü, sesi, yazılı mesajları ve ekran paylaşımı. Kamera açmak zorunlu değildir.'],
+['3. İşleme amacı','Dersin kaydedilmesi, derse katılamayan öğrencilerin konuyu telafi edebilmesi ve eğitimin takibi. Kayıtlar reklam veya tanıtım için kullanılmaz.'],
+['4. Toplama yöntemi ve hukuki sebep','Veriler, eğitim platformundaki formlar ve çevrim içi ders kaydı yoluyla elektronik ortamda toplanır. Ders kaydı ve paylaşımı, 6698 sayılı Kanun uyarınca açık rızaya dayanır.'],
+['5. Aktarım','Kayıtlar yalnızca yetkili öğretmen ve yöneticiler ile izin verilen öğrenci ve velilerin erişimine açılır; kanunen yetkili kurumların talebi saklıdır. Saklama için sunucuları yurt dışında olabilen bir bulut hizmeti (Google Drive) kullanılır. Yurt dışına aktarımın Kanunun 9. maddesindeki dayanağı: ____________________'],
+['6. Saklama süresi','Ders kayıtları ve derse ait veriler, ders grubu tamamlandığında silinir. Mevzuatın saklanmasını zorunlu tuttuğu kayıtlar yasal süresi boyunca tutulur.'],
+['7. Haklarınız (Kanun m. 11)','Verinizin işlenip işlenmediğini öğrenme ve bilgi isteme; işleme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme; aktarıldığı kişileri bilme; eksik veya yanlış verinin düzeltilmesini, şartları oluştuğunda silinmesini veya yok edilmesini ve bu işlemlerin aktarılan kişilere bildirilmesini isteme; yalnızca otomatik sistemlerle yapılan analiz sonucunda aleyhinize çıkan sonuca itiraz etme; kanuna aykırı işleme nedeniyle uğradığınız zararın giderilmesini talep etme.'],
+['8. Başvuru','Taleplerinizi yukarıdaki adrese yazılı olarak veya Kurumun belirlediği diğer yöntemlerle iletebilirsiniz. Başvurular en geç 30 gün içinde yanıtlanır. Yanıt yetersizse veya verilmezse Kişisel Verileri Koruma Kuruluna şikâyette bulunabilirsiniz.']];
+const RIZANOT='Rıza vermek zorunlu değildir. Vermemeniz çocuğunuzun derse katılmasını ve eğitim hakkını etkilemez. Rızanızı dilediğiniz zaman geri çekebilirsiniz; geri çekme ileriye dönük sonuç doğurur.';
+const TASLAK='Taslak metindir; kullanıma alınmadan önce boşluklar doldurulmalı ve bir hukukçu tarafından onaylanmalıdır.';
+const rizaTam=ad=>!!(db.riza[ad]?.kayit&&db.riza[ad]?.paylasim);
 function rizaKart(o){const r=db.riza[o.ad];
-const metin=`<p>Kamera açmak zorunlu değildir. Her izni ayrı ayrı verebilirsiniz; izin vermemeniz çocuğunuzun derse katılmasını etkilemez ve izninizi dilediğiniz zaman geri çekebilirsiniz.</p><p class="mut">Örnek metindir. Gerçek kullanımdan önce aydınlatma ve açık rıza metni hukukçu tarafından hazırlanmalıdır.</p>`;
-const durumu=!r?['Yanıt bekleniyor','dikkat']:rizaTam(o.ad)?['İzin verildi','ok']:r.kayit||r.saklama?['Kısmi izin','dikkat']:['İzin verilmedi','bad'];
-return blok('shield-check','Video kaydı ve kişisel veri izni',`<div class="riza"><div class="satirbas"><b>${E(o.ad)}</b>${rozet_(durumu)}</div>${metin}<form data-f="riza"><input type="hidden" name="ad" value="${E(o.ad)}">${Object.entries(RIZA).map(([k,t])=>`<label class="onay"><input type="checkbox" name="${k}" ${r?.[k]?'checked':''}> <span>${t}</span></label>`).join('')}<div class="eylem sol"><button class="btn">${I('check',16)} ${r?'Seçimimi güncelle':'Seçtiklerime izin veriyorum'}</button><button type="button" class="btn s" data-a="rizared" data-v="${E(o.ad)}">${r&&(r.kayit||r.saklama)?'Tüm izinleri geri çek':'İzin vermiyorum'}</button></div></form>${r?`<small class="mut">Son yanıt: ${E(r.veli)} · ${tarih(r.tarih)}</small>`:''}</div>`)}
+const metin=`<details class="aydinlatma"><summary>Aydınlatma metnini oku (KVKK m. 10)</summary>${AYDINLATMA.map(([b,t])=>`<h4>${b}</h4><p>${t}</p>`).join('')}</details><h4>Açık rıza beyanı</h4><p>Kamera açmak zorunlu değildir. ${RIZANOT}</p><p class="mut">${TASLAK}</p>`;
+const durumu=!r?['Yanıt bekleniyor','dikkat']:rizaTam(o.ad)?['İzin verildi','ok']:r.kayit||r.paylasim?['Kısmi izin','dikkat']:['İzin verilmedi','bad'];
+return blok('shield-check','Video kaydı ve kişisel veri izni',`<div class="riza"><div class="satirbas"><b>${E(o.ad)}</b>${rozet_(durumu)}</div>${metin}<form data-f="riza"><input type="hidden" name="ad" value="${E(o.ad)}">${Object.entries(RIZA).map(([k,t])=>`<label class="onay"><input type="checkbox" name="${k}" ${r?.[k]?'checked':''}> <span>${t}</span></label>`).join('')}<div class="eylem sol"><button class="btn">${I('check',16)} ${r?'Seçimimi güncelle':'Seçtiklerime izin veriyorum'}</button><button type="button" class="btn s" data-a="rizared" data-v="${E(o.ad)}">${r&&(r.kayit||r.paylasim)?'Tüm izinleri geri çek':'İzin vermiyorum'}</button></div></form>${r?`<small class="mut">Son yanıt: ${E(r.veli)} · ${tarih(r.tarih)}</small>`:''}</div>`)}
 function rizaOzet(d){const l=db.ogrenciler.filter(o=>o.aktif!==false&&o.dersler.includes(d.id));if(!l.length)return '';const yok=l.filter(o=>!rizaTam(o.ad));
 return blok('shield-check','Veli izin durumu',yok.length?`<p class="not">${I('info',16)} <span>Tam izni olmayanlar: <b>${yok.map(o=>E(o.ad)).join(', ')}</b>. Yüklemeden önce bu öğrencilerin görüntü, ses, ad ve mesajlarının kayıtta olmadığını kontrol edin.</span></p>`:'<p>Bu dersteki tüm öğrenciler için izin alınmış.</p>')}
 db.riza={};
-function onayTuval(o){const r=db.riza[o.ad],c=document.createElement('canvas');c.width=1240;c.height=1754;const g=c.getContext('2d');
-g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);let y=130;const sol=100,en=1040;
-const yaz=(t,boy=24,kalin=false,renk='#1c1d1f',x=sol,w=en)=>{g.font=`${kalin?700:400} ${boy}px "Segoe UI","Open Sans",system-ui,sans-serif`;g.fillStyle=renk;let satir='';for(const k of String(t).split(' ')){const d=satir?satir+' '+k:k;if(satir&&g.measureText(d).width>w){g.fillText(satir,x,y);y+=boy*1.5;satir=k}else satir=d}g.fillText(satir,x,y);y+=boy*1.5};
-const cizgi=()=>{g.fillStyle='#d9dbe5';g.fillRect(sol,y-10,en,2);y+=34};
-yaz('MD Education',30,true,'#1749b3');yaz('YAZILI ONAY FORMU',46,true);yaz('Video kaydı ve kişisel veri izni · Örnek belge',24,false,'#6a6f73');cizgi();
-[['Öğrencinin adı soyadı',o.ad],['Sınıfı',o.sinif],['Velinin adı soyadı',kisi.veli],['Dersleri',o.dersler.map(D).filter(Boolean).map(d=>d.ad).join(', ')],['Yanıt tarihi',r?new Date(r.tarih+'T12:00').toLocaleDateString('tr'):'Henüz yanıt verilmedi']].forEach(([a,b])=>{const bas=y;yaz(a,24,false,'#6a6f73');const son=y;y=bas;yaz(b||'—',24,true,'#1c1d1f',sol+340,en-340);y=Math.max(y,son)});
-cizgi();yaz('Onay verilen konular',30,true);y+=8;
-Object.entries(RIZA).forEach(([k,t])=>{const v=!!r?.[k];g.strokeStyle='#1c1d1f';g.lineWidth=2;g.strokeRect(sol,y-24,28,28);if(v){g.beginPath();g.lineWidth=4;g.moveTo(sol+5,y-10);g.lineTo(sol+12,y-3);g.lineTo(sol+23,y-18);g.stroke()}
-yaz(t,24,false,'#1c1d1f',sol+48,en-48);yaz(!r?'Yanıt bekleniyor':v?'İzin verildi':'İzin verilmedi',22,true,v?'#14804a':'#b4430a',sol+48);y+=14});
-cizgi();yaz('Kamera açmak zorunlu değildir. İzin vermemek öğrencinin derse katılmasını etkilemez. Verilen izin dilediğiniz zaman veli panelinden geri çekilebilir.',22);
-y+=20;yaz('Bu belge prototip örneğidir ve hukuki geçerliliği yoktur. Aydınlatma ve açık rıza metni hukukçu tarafından hazırlanmalıdır.',22,true,'#b4430a');
-y+=90;const imza=y;yaz('Veli adı soyadı: ______________________',24);y=imza;yaz('İmza: ______________',24,false,'#1c1d1f',sol+660,380);yaz('Tarih: ____ / ____ / ______',24);
+function onayTuval(o,sayfa){const r=db.riza[o.ad],c=document.createElement('canvas');c.width=1240;c.height=1754;const g=c.getContext('2d');
+g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);let y=110;const sol=100,en=1040;
+const yaz=(t,boy=22,kalin=false,renk='#1c1d1f',x=sol,w=en)=>{g.font=`${kalin?700:400} ${boy}px "Segoe UI","Open Sans",system-ui,sans-serif`;g.fillStyle=renk;let satir='';for(const k of String(t).split(' ')){const d=satir?satir+' '+k:k;if(satir&&g.measureText(d).width>w){g.fillText(satir,x,y);y+=boy*1.45;satir=k}else satir=d}g.fillText(satir,x,y);y+=boy*1.45};
+const cizgi=()=>{g.fillStyle='#d9dbe5';g.fillRect(sol,y-10,en,2);y+=32};
+const imza=()=>{y+=60;const bas=y;yaz('Veli adı soyadı: ______________________');y=bas;yaz('İmza: ______________',22,false,'#1c1d1f',sol+660,380);yaz('Tarih: ____ / ____ / ______')};
+yaz('MD Education',28,true,'#1749b3');
+yaz(sayfa==1?'KİŞİSEL VERİLERE İLİŞKİN AYDINLATMA METNİ':'AÇIK RIZA BEYANI',34,true);yaz('Çevrim içi ders kaydı · 6698 sayılı Kişisel Verilerin Korunması Kanunu',22,false,'#6a6f73');cizgi();
+if(sayfa==1){AYDINLATMA.forEach(([b,t])=>{yaz(b,23,true);yaz(t,21);y+=12});cizgi();yaz('Bu aydınlatma metnini okudum ve bilgilendirildim. (Bu imza açık rıza anlamına gelmez.)',22,true);imza()}
+else{[['Öğrencinin adı soyadı',o.ad],['Sınıfı',o.sinif],['Velinin adı soyadı',kisi.veli],['Dersleri',o.dersler.map(D).filter(Boolean).map(d=>d.ad).join(', ')],['Elektronik yanıt tarihi',r?new Date(r.tarih+'T12:00').toLocaleDateString('tr'):'Henüz yanıt verilmedi']].forEach(([a,b])=>{const bas=y;yaz(a,22,false,'#6a6f73');const son=y;y=bas;yaz(b||'—',22,true,'#1c1d1f',sol+340,en-340);y=Math.max(y,son)});
+cizgi();yaz('Aydınlatma metni bana ayrıca sunulmuştur. Aşağıdaki her konu için tercihim:',22);y+=22;
+Object.entries(RIZA).forEach(([k,t])=>{const v=!!r?.[k];g.strokeStyle='#1c1d1f';g.lineWidth=2;g.strokeRect(sol,y-22,26,26);if(v){g.beginPath();g.lineWidth=4;g.moveTo(sol+5,y-9);g.lineTo(sol+11,y-3);g.lineTo(sol+21,y-17);g.stroke()}
+yaz(t,22,false,'#1c1d1f',sol+46,en-46);yaz(!r?'Yanıt bekleniyor':v?'Rıza verildi':'Rıza verilmedi',21,true,v?'#14804a':'#b4430a',sol+46);y+=16});
+cizgi();yaz(RIZANOT,22);imza()}
+y=1690;yaz(TASLAK,18,false,'#b4430a');
 return c}
-function pdfYap(c){const j=atob(c.toDataURL('image/jpeg',.92).split(',')[1]),ic='q 595 0 0 842 0 0 cm /I Do Q';
-const n=['<</Type/Catalog/Pages 2 0 R>>','<</Type/Pages/Kids[3 0 R]/Count 1>>','<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</XObject<</I 4 0 R>>>>/Contents 5 0 R>>',`<</Type/XObject/Subtype/Image/Width ${c.width}/Height ${c.height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${j.length}>>\nstream\n${j}\nendstream`,`<</Length ${ic.length}>>\nstream\n${ic}\nendstream`];
+function pdfYap(sayfalar){const ic='q 595 0 0 842 0 0 cm /I Do Q',n=['<</Type/Catalog/Pages 2 0 R>>',`<</Type/Pages/Kids[${sayfalar.map((_,i)=>3+i*3+' 0 R').join(' ')}]/Count ${sayfalar.length}>>`];
+sayfalar.forEach((c,i)=>{const j=atob(c.toDataURL('image/jpeg',.92).split(',')[1]),no=3+i*3;n.push(`<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</XObject<</I ${no+1} 0 R>>>>/Contents ${no+2} 0 R>>`,`<</Type/XObject/Subtype/Image/Width ${c.width}/Height ${c.height}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${j.length}>>\nstream\n${j}\nendstream`,`<</Length ${ic.length}>>\nstream\n${ic}\nendstream`)});
 let p='%PDF-1.4\n';const yer=n.map((o,i)=>{const a=p.length;p+=`${i+1} 0 obj\n${o}\nendobj\n`;return a});
 const x=p.length;p+=`xref\n0 ${n.length+1}\n0000000000 65535 f \n${yer.map(a=>String(a).padStart(10,'0')+' 00000 n \n').join('')}trailer\n<</Size ${n.length+1}/Root 1 0 R>>\nstartxref\n${x}\n%%EOF`;
 return new Blob([Uint8Array.from(p,h=>h.charCodeAt(0))],{type:'application/pdf'})}
-function pdfIndir(){const o=ob(kisi.ogrenci),a=document.createElement('a');a.href=URL.createObjectURL(pdfYap(onayTuval(o)));a.download=`Yazili-Onaylar-${o.ad.replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')}.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast('PDF hazırlandı')}
-function onaySayfa(o){return rizaKart(o)+blok('file-check','Yazılı Onaylar',`<div class="kayit"><span class="kayitik">PDF</span><div><b>Yazılı Onaylar: ${E(o.ad)}</b><div class="mut">Veli: ${E(kisi.veli)} · 1 sayfa</div></div><button class="btn" data-a="pdfindir">${I('download',16)} PDF indir</button></div><img class="belge" src="${onayTuval(o).toDataURL('image/png')}" alt="${E(o.ad)} için yazılı onay formu önizlemesi">`)}
+function pdfIndir(){const o=ob(kisi.ogrenci),a=document.createElement('a');a.href=URL.createObjectURL(pdfYap([onayTuval(o,1),onayTuval(o,2)]));a.download=`Yazili-Onaylar-${o.ad.replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')}.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast('PDF hazırlandı')}
+function onaySayfa(o){return rizaKart(o)+blok('file-check','Yazılı Onaylar',`<div class="kayit"><span class="kayitik">PDF</span><div><b>Yazılı Onaylar: ${E(o.ad)}</b><div class="mut">Veli: ${E(kisi.veli)} · 2 sayfa: aydınlatma metni ve açık rıza</div></div><button class="btn" data-a="pdfindir">${I('download',16)} PDF indir</button></div>${[[1,'aydınlatma metni'],[2,'açık rıza beyanı']].map(([n,ad])=>`<img class="belge" src="${onayTuval(o,n).toDataURL('image/png')}" alt="${E(o.ad)} için ${ad} önizlemesi">`).join('')}`)}
 function oynaticiKapat(){document.getElementById('oynatici')?.remove()}
 function oynaticiAc(v){oynaticiKapat();const [d,h]=v.split('|'),k=kayitAl(d,h);if(!k)return;
 const x=document.createElement('div');x.id='oynatici';x.setAttribute('role','dialog');x.setAttribute('aria-modal','true');x.setAttribute('aria-label',k.baslik);
@@ -757,7 +770,7 @@ if(a=='ykaydet')return toast('Açıklamalar kaydedildi')
 if(a=='izle')return oynaticiAc(v);
 if(a=='okapat')return oynaticiKapat();
 if(a=='pdfindir')return pdfIndir();
-if(a=='rizared'){db.riza[v]={kayit:false,saklama:false,veli:kisi.veli,tarih:bugunStr()};toast('İzin verilmedi olarak kaydedildi')}
+if(a=='rizared'){db.riza[v]={kayit:false,paylasim:false,veli:kisi.veli,tarih:bugunStr()};toast('İzin verilmedi olarak kaydedildi')}
 if(a=='oform')od.form=!od.form;
 if(a=='oac'){od.ac=od.ac==v?null:v;od.sil=null}
 if(a=='ovazgec')od.sil=null;
@@ -791,7 +804,7 @@ if(!x.baslik||!x.aciklama)return toast('Başlık ve yönerge zorunlu');
 const hedef=fd.getAll('hedef');
 db.odevler.push({id:Date.now(),ders:sec.d,baslik:x.baslik,tur:x.tur,hafta:+x.hafta,aciklama:x.aciklama,kazanim:x.kazanim,link:x.link,dosya:file&&file.size?{ad:file.name,url:URL.createObjectURL(file)}:null,son:x.son,saat:x.saat,puan:+x.puan||100,sure:+x.sure||'',bicim:fd.getAll('bicim'),hedef:hedef.length?hedef:null,veliNot:x.veliNot,teslim:{}});
 od.form=false;toast('Ödev yayınlandı');return ciz()}
-if(t=='riza'){if(!x.kayit&&!x.saklama)return toast('İzin vermek için en az bir kutu seçin');db.riza[x.ad]={kayit:!!x.kayit,saklama:!!x.saklama,veli:kisi.veli,tarih:bugunStr()};toast('İzin tercihiniz kaydedildi');return ciz()}
+if(t=='riza'){if(!x.kayit&&!x.paylasim)return toast('İzin vermek için en az bir kutu seçin');db.riza[x.ad]={kayit:!!x.kayit,paylasim:!!x.paylasim,veli:kisi.veli,tarih:bugunStr()};toast('İzin tercihiniz kaydedildi');return ciz()}
 if(t=='teslimet'){const o=db.odevler.find(y=>y.id==x.id),file=x.dosya,eski=o.teslim[kisi.ogrenci];
 if(x.link&&!guvenli(x.link))return toast('Bağlantı https:// ile başlamalı');
 const dosya=file&&file.size?{ad:file.name,url:URL.createObjectURL(file)}:eski?.dosya||null;
