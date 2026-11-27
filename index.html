@@ -217,6 +217,10 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 #ipucu{position:fixed;z-index:95;background:#1c1d2e;color:#fff;font-size:12px;padding:6px 10px;border-radius:8px;pointer-events:none;max-width:260px}#ipucu[hidden]{display:none}
 .tahsilat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;align-items:center}.tahsilat>*{margin:0}
 .gizgara>.gkart.genis{grid-column:1/-1}
+.adaylar{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:10px;max-height:520px;overflow:auto;padding:2px}
+.aday{display:flex!important;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;min-width:0;text-align:left}.aday>input{width:auto!important;margin-top:12px;flex:none}.aday>div{flex:1;min-width:0}.aday:has(input:checked){border-color:#1749b3;background:#f4f7ff}
+.aday .kim{font-size:14px;color:var(--ink);text-align:left}.aday .kim .mut{font-size:12px}
+.aday dl{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0 0;font-size:12px}.aday dt{color:var(--mut)}.aday dd{margin:0;overflow-wrap:anywhere}.uyari-metin{display:block;margin-top:8px;color:#9a4d00}.uygunsuz{margin-top:10px;background:#fff4e8;padding:10px 12px;border-radius:12px}.uygunsuz[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -382,8 +386,8 @@ ${kazPanel(d,true)}`}
 function giris(){return `<h1>Oturum aç</h1><h2>Admin girişi</h2><form class="card" data-f="giris">${alan('kullanici','Kullanıcı adı','text','autocomplete="off" autocapitalize="none"')}${alan('sifre','Şifre','password','autocomplete="off"')}<div><button class="btn">Giriş yap</button></div></form><h2>Demo panelleri</h2><p class="mut">Diğer roller prototipte şifresiz açılır.</p><div class="grid giris">${Object.keys(roller).filter(r=>r!='admin').map(r=>`<div class="card" style="--p:${TEMA[r][0]}"><span class="buyuk">${I(TEMA[r][2],28)}</span><h3>${roller[r]}</h3><p class="mut">${E(kisi[r])}</p><button class="btn" data-a="gir" data-v="${r}">${roller[r]} olarak gir</button></div>`).join('')}</div>`}
 function kayit(){return `<h1>Kaydol</h1><p class="mut">Veli, öğrenci ve öğretmen başvurur; admin onaylar. Kurum hesabını admin açar. Gerçek bilgi girmeyin.</p>${form('kayit',secim('tip','Rol',['Veli','Öğrenci','Öğretmen'])+alan('ad','Ad soyad'),'Başvuru gönder')}`}
 
-const sekme={admin:['Özet','Kurumlar','Dersler','Öğretmenler','Başvurular','Veliler','Öğrenciler'],kurum:['Özet','Öğretmenler','Veliler','Öğrenciler'],ogretmen:['Kazanım ve plan','Yoklama','Ödevler','Öğrencilerim','Ders kayıtları'],ogrenci:['Haftalarım','Ödevlerim','Ders kayıtları'],veli:['Genel durum','Yoklama','Ödevler','Ödemeler','Ders kayıtları','Yazılı Onaylar']};
-const sIkon={admin:['layout-dashboard','building-2','book-open','graduation-cap','inbox','users','backpack'],kurum:['layout-dashboard','graduation-cap','users','backpack'],ogretmen:['target','calendar-check','notebook-pen','users','video'],ogrenci:['route','notebook-pen','video'],veli:['layout-dashboard','calendar-check','notebook-pen','wallet','video','file-check']};
+const sekme={admin:['Özet','Kurumlar','Dersler','Öğretmenler','Başvurular','Veliler','Öğrenciler'],kurum:['Özet','Dersler','Öğretmenler','Veliler','Öğrenciler'],ogretmen:['Kazanım ve plan','Yoklama','Ödevler','Öğrencilerim','Ders kayıtları'],ogrenci:['Haftalarım','Ödevlerim','Ders kayıtları'],veli:['Genel durum','Yoklama','Ödevler','Ödemeler','Ders kayıtları','Yazılı Onaylar']};
+const sIkon={admin:['layout-dashboard','building-2','book-open','graduation-cap','inbox','users','backpack'],kurum:['layout-dashboard','book-open','graduation-cap','users','backpack'],ogretmen:['target','calendar-check','notebook-pen','users','video'],ogrenci:['route','notebook-pen','video'],veli:['layout-dashboard','calendar-check','notebook-pen','wallet','video','file-check']};
 const TEMA={admin:['#4f46e5','#7c3aed','shield-check','Platformun tamamı tek ekranda',['chart-column','settings','building-2']],kurum:['#0f766e','#0891b2','building-2','Kurumunuzun eğitim görünümü',['users','book-open','graduation-cap']],ogretmen:['#c2410c','#db2777','presentation','Dersinizi planlayın, sınıfınızı takip edin',['notebook-pen','calendar-check','lightbulb']],ogrenci:['#1d4ed8','#7c3aed','rocket','Yolculuğunda hangi haftadasın, gör',['star','trophy','code-xml']],veli:['#047857','#1d4ed8','heart-handshake','Çocuğunuzun gelişimi bir bakışta',['chart-column','calendar-check','wallet']]};
 const I=(n,b=18)=>`<svg class="ik" width="${b}" height="${b}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IKON[n]||''}</svg>`;
 const RENK=['#4f46e5','#0891b2','#db2777','#ea580c','#059669','#7c3aed'];
@@ -451,7 +455,7 @@ addEventListener('scroll',()=>{const k=document.getElementById('ipucu');if(k)k.h
 
 function ozet(){
 
-const hizli=rol=='admin'?[['building-2','Kurum aç',1],['circle-plus','Ders ekle',2],['user-plus','Öğretmen ekle',3],['inbox',`Başvurular (${db.basvuru.length})`,4]]:[['user-plus','Öğretmen ekle',1],['users','Veli ekle',2],['backpack','Öğrenci ekle',3]];
+const hizli=rol=='admin'?[['building-2','Kurum aç',1],['circle-plus','Ders ekle',2],['user-plus','Öğretmen ekle',3],['inbox',`Başvurular (${db.basvuru.length})`,4]]:[['circle-plus','Ders ekle',1],['user-plus','Öğretmen ekle',2],['users','Veli ekle',3],['backpack','Öğrenci ekle',4]];
 return kutular([['backpack','Öğrenci',db.ogrenciler.length,'#4f46e5'],['graduation-cap','Öğretmen',db.hocalar.length,'#ea580c'],['book-open','Ders',db.dersler.length,'#0891b2'],['users','Veli',db.veliler.length,'#db2777'],['building-2','Kurum',db.kurumlar.length,'#059669']])
 +`<div class="hizli">${hizli.map(([ik,a,t])=>`<button data-a="tab" data-v="${t}">${I(ik,22)}${a}</button>`).join('')}</div>`
 +analizler()
@@ -515,8 +519,8 @@ if(db.dersler.some(d=>d.hoca==v))toast('Atanmış dersi olan öğretmen silineme
 else if(hg.sil!=v)hg.sil=v;
 else{db.hocalar.splice(db.hocalar.indexOf(v),1);delete hocaKayit[v];hg.sil=null;toast('Öğretmen silindi')}}
 if(a!='hsil')hg.sil=null}
-const sGrup={admin:{0:'Genel',1:'Yönetim',4:'İşlemler',5:'Kişiler'},kurum:{0:'Genel',1:'Kişiler'},ogretmen:{0:'Ders yönetimi',3:'Sınıf',4:'İçerik'},ogrenci:{0:'Derslerim'},veli:{0:'Takip',3:'Finans',4:'İçerik',5:'Belgeler'}};
-const sSayi=(r,i)=>{const n=r=='admin'?{1:db.kurumlar.length,2:db.dersler.length,3:db.hocalar.length,4:db.basvuru.length,5:db.veliler.length,6:db.ogrenciler.length}[i]:r=='kurum'?{1:db.hocalar.length,2:db.veliler.length,3:db.ogrenciler.length}[i]:undefined;return n===undefined?'':`<em>${n}</em>`};
+const sGrup={admin:{0:'Genel',1:'Yönetim',4:'İşlemler',5:'Kişiler'},kurum:{0:'Genel',1:'Yönetim',3:'Kişiler'},ogretmen:{0:'Ders yönetimi',3:'Sınıf',4:'İçerik'},ogrenci:{0:'Derslerim'},veli:{0:'Takip',3:'Finans',4:'İçerik',5:'Belgeler'}};
+const sSayi=(r,i)=>{const n=r=='admin'?{1:db.kurumlar.length,2:db.dersler.length,3:db.hocalar.length,4:db.basvuru.length,5:db.veliler.length,6:db.ogrenciler.length}[i]:r=='kurum'?{1:db.dersler.length,2:db.hocalar.length,3:db.veliler.length,4:db.ogrenciler.length}[i]:undefined;return n===undefined?'':`<em>${n}</em>`};
 const duzeyAlani=()=>`<fieldset class="tum duzeyler"><legend>Düzey (birden fazla seçebilirsiniz)</legend>${DUZEY.map(x=>`<label><input type="checkbox" name="duzey" value="${x}"> ${x}</label>`).join('')}</fieldset>`;
 const haftaSatiri=(i,k='',z='')=>`<fieldset class="hsatir"><legend>${i}. hafta</legend><label>Konu<input name="k${i}" value="${E(k)}"></label><label>Kazanım<input name="z${i}" value="${E(z)}"></label></fieldset>`;
 const haftaAlanlari=()=>`<div class="tum"><label>Genel kazanımlar (her satıra bir tane)<textarea name="genel" rows="4" placeholder="Boş bırakırsanız haftalık kazanımların ilk dördü kullanılır"></textarea></label></div><div class="tum"><h3>Hafta hafta konu ve kazanım</h3><div class="hsatirlar"><p class="mut">Satırlar tarihleri seçince açılır.</p></div></div>`;
@@ -635,13 +639,38 @@ const engel=t=='ogr'?(v==kisi.ogrenci||Object.keys(db.yoklama).some(k=>k.endsWit
 if(engel)toast(engel);else if(g.sil!=v)g.sil=v;else{if(t=='ogr')db.ogrenciler.splice(db.ogrenciler.findIndex(o=>o.ad==v),1);else{db.veliler.splice(db.veliler.indexOf(v),1);delete veliKayit[v]}g.sil=null;toast('Kayıt silindi')}}
 if(a!='ksil')g.sil=null}
 
+// ders yönetimi ve öğretmen atama (admin ve kurum)
+let ata=null;
+const UYGUN={uygun:['Uygun','ok','check'],kismi:['Kısmen uygun','dikkat','info'],degil:['Uygun değil','bad','x']};
+function uygunluk(ad,duzey,dersId){const k=hk_(ad),ortak=duzey.filter(x=>(k.duzeyler||[]).includes(x)),tam=duzey.length&&ortak.length==duzey.length;
+const brans=dersId?(k.dersler||[]).includes(dersId):null,eksik=duzey.filter(x=>!ortak.includes(x));const neden=[];
+if(brans===false)neden.push('Bu ders verebileceği dersler arasında değil');
+if(!duzey.length)neden.push('Önce düzey seçin');else if(eksik.length)neden.push(`Eksik düzey: ${eksik.join(', ')}`);
+const s=!duzey.length?'kismi':tam&&brans!==false?'uygun':(brans||(brans===null&&ortak.length))?'kismi':'degil';
+return {s,neden:neden.join('. ')}}
+function adaylar(duzey,dersId,secili){const sira={uygun:0,kismi:1,degil:2};
+const l=aktifHocalar().map(ad=>({ad,k:hk_(ad),u:uygunluk(ad,duzey,dersId)})).sort((a,b)=>sira[a.u.s]-sira[b.u.s]||(+b.k.deneyim||0)-(+a.k.deneyim||0));
+if(!l.length)return bos('Aktif öğretmen yok. Önce öğretmen ekleyin.');
+return l.map(({ad,k,u})=>`<label class="aday"><input type="radio" name="hoca" value="${E(ad)}" data-uygun="${u.s}" ${ad==secili?'checked':''} required><div><div class="satirbas">${kim(ad,E([k.mezuniyet,k.bolum].filter(Boolean).join(' · ')||'Profil bilgisi eksik'))}<span class="tag ${UYGUN[u.s][1]}">${I(UYGUN[u.s][2],12)} ${duzey.length?UYGUN[u.s][0]:'Düzey seçin'}</span></div>
+<dl><div><dt>Deneyim</dt><dd>${k.deneyim?E(k.deneyim)+' yıl':'—'}</dd></div><div><dt>Üniversite</dt><dd>${E(k.universite||'—')}</dd></div><div><dt>Düzeyler</dt><dd>${E((k.duzeyler||[]).join(', ')||'—')}</dd></div><div><dt>Verebileceği dersler</dt><dd>${E((k.dersler||[]).map(D).filter(Boolean).map(d=>d.ad).join(', ')||'—')}</dd></div><div><dt>Çalışma</dt><dd>${E([k.calisma,k.bicim].filter(Boolean).join(' · ')||'—')}</dd></div><div><dt>Müsait günler</dt><dd>${E((k.gunler||[]).join(', ')||'—')}</dd></div><div><dt>Sertifika</dt><dd>${E(k.sertifika||'—')}</dd></div><div><dt>Şu an verdiği</dt><dd>${db.dersler.filter(d=>d.hoca==ad).length} ders</dd></div></dl>${u.neden&&duzey.length?`<small class="uyari-metin">${E(u.neden)}</small>`:''}</div></label>`).join('')}
+const onayKutusu=`<label class="onay uygunsuz" hidden><input type="checkbox" name="onayla"> <span>Seçtiğim öğretmen tam uygun görünmüyor. Bilgilerini inceledim, yine de atıyorum.</span></label>`;
+function uygunsuzGoster(f){const r=f.querySelector('input[name=hoca]:checked'),k=f.querySelector('.uygunsuz');if(k)k.hidden=!r||r.dataset.uygun=='uygun'}
+function adayYenile(f){const kutu=f.querySelector('.adaylar'),secili=f.querySelector('input[name=hoca]:checked')?.value;
+kutu.innerHTML=adaylar([...f.querySelectorAll('input[name=duzey]:checked')].map(i=>i.value),null,secili);uygunsuzGoster(f)}
+const atayanNotu=d=>d.atama?`<small class="mut">Atayan: ${E(d.atama.kim)} · ${tarih(d.atama.tarih)}</small>`:'';
+function dersT(){
+const yeni=blok('circle-plus','Yeni ders',form('ders',alan('ad','Ders adı')+duzeyAlani()+alan('bas','Başlangıç tarihi','date')+alan('bit','Bitiş tarihi','date')+'<div class="tum sure-bilgi" aria-live="polite">Başlangıç ve bitiş tarihini seçin; hafta sayısı otomatik hesaplanır.</div>'+alan('fiyat','Ücret (TL)','number','min="0"')+`<fieldset class="tum"><legend>Öğretmen ata</legend><p class="mut">Yukarıda düzey seçince uygunluk hesaplanır. Branş uygunluğunu bölüm ve derslerden kontrol edin.</p><div class="adaylar">${adaylar([],null)}</div>${onayKutusu}</fieldset>`+haftaAlanlari(),'Ders ekle'));
+const atanan=ata&&D(ata);
+const panelAta=atanan?blok('user-plus',`Öğretmen ata: ${E(atanan.ad)}`,`<form class="hform" data-f="ata"><input type="hidden" name="id" value="${atanan.id}"><p class="mut">Ders düzeyi: ${E(atanan.duzey.join(', '))} · Şu anki öğretmen: ${E(atanan.hoca)}</p><div class="adaylar">${adaylar(atanan.duzey,atanan.id,atanan.hoca)}</div>${onayKutusu}<div class="eylem sol"><button class="btn">${I('check',15)} Atamayı kaydet</button><button type="button" class="btn s" data-a="atac" data-v="">Vazgeç</button></div></form>`):'';
+return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div>${kim(d.hoca)}<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
+
 const panel={
 admin:[ozet,
 ()=>blok('circle-plus','Yeni kurum',form('kurum',alan('ad','Kurum adı')+alan('sehir','Şehir'),'Kurum aç'))+blok('building-2','Kurumlar',`<div class="kisiler">${db.kurumlar.map(k=>`<div class="kisi"><span class="buyuk" style="background:${rk(k.ad)}">${I('school',30)}</span><b>${E(k.ad)}</b><small>${I('map-pin',14)} ${E(k.sehir)}</small></div>`).join('')}</div>`),
-()=>blok('circle-plus','Yeni ders',form('ders',alan('ad','Ders adı')+duzeyAlani()+alan('bas','Başlangıç tarihi','date')+alan('bit','Bitiş tarihi','date')+'<div class="tum sure-bilgi" aria-live="polite">Başlangıç ve bitiş tarihini seçin; hafta sayısı otomatik hesaplanır.</div>'+secim('hoca','Öğretmen',aktifHocalar())+alan('fiyat','Ücret (TL)','number','min="0"')+haftaAlanlari(),'Ders ekle'))+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>`<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div>${kim(d.hoca)}<div class="eylem"><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label><button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button></div></div></article>`).join('')}</div>`),
+dersT,
 hocaT,
 ()=>blok('inbox','Bekleyen başvurular',db.basvuru.length?`<div class="liste">${db.basvuru.map((b,i)=>`<div class="satir">${kim(b.ad,E(b.tip))}<button class="btn s" data-a="onay" data-v="${i}">${I('check',14)} Onayla</button></div>`).join('')}</div>`:bos('Bekleyen başvuru yok. Siteden gelen kayıtlar burada görünür.')),()=>kisiT('veli'),()=>kisiT('ogr')],
-kurum:[ozet,hocaT,()=>kisiT('veli'),()=>kisiT('ogr')]
+kurum:[ozet,dersT,hocaT,()=>kisiT('veli'),()=>kisiT('ogr')]
 };
 const dersSec=l=>`<div class="dsec">${l.map(d=>`<button data-a="ders" data-v="${d.id}" class="${d.id==sec.d?'on':''}"><img src="${gorsel(d)}" alt=""><span><b>${E(d.ad)}</b><small>${d.hafta} hafta</small></span></button>`).join('')}</div>`;
 const haftaSec=d=>`<div class="haftalar">${d.plan.map((_,i)=>`<button data-a="hafta" data-v="${i+1}" class="${i+1==sec.h?'on':i+1<simdi(d)?'gecti':''}" aria-label="${i+1}. hafta">${i+1}</button>`).join('')}</div>`;
@@ -822,7 +851,9 @@ if(/^k(yeni|kapat|duzen|ac|filtre|durum|sil)$/.test(a))kisiEylem(a,b.dataset.t,v
 if(a=='tab'||a=='gir'||a=='cikis')kg={ogr:bosKisi(),veli:bosKisi()};
 if(a=='kaydir')return slayt(+v);
 if(a=='kat'){kat=v;const y=scrollY;ciz();return scrollTo(0,y)}
+if(a=='tab'||a=='gir'||a=='cikis')ata=null;
 if(a=='tab')tab=+v;
+if(a=='atac'){ata=v||null;ciz();return scrollTo(0,0)}
 if(a=='ders')sec.d=v;
 if(a=='hafta')sec.h=+v;
 if(a=='yok'){db.yoklama[v]=b.dataset.x;toast('Yoklama işlendi')}
@@ -856,8 +887,13 @@ if(t=='veli'&&!veliKaydet(f,x))return;
 if(t=='ogr'&&!ogrKaydet(f,x))return;
 if(t=='ders'){const duzey=new FormData(f).getAll('duzey'),n=haftaSayisi(x.bas,x.bit);
 if(!duzey.length)return toast('En az bir düzey seçin');
+if(!x.hoca)return toast('Bir öğretmen seçin');
+if(uygunluk(x.hoca,duzey,null).s!='uygun'&&!x.onayla)return toast('Uygunluk uyarısını onaylayın veya başka öğretmen seçin');
 if(!(n>=1&&n<=52))return toast('Geçerli bir başlangıç ve bitiş tarihi seçin');
-const y=ders(x.ad,'',n,x.hoca,+x.fiyat,[],[]);Object.assign(y,{duzey,bas:x.bas,bit:x.bit,yeni:true});y.plan.forEach((p,i)=>{p.konu=x['k'+(i+1)]||p.konu;p.kazanim=x['z'+(i+1)]||''});const g=(x.genel||'').split('\n').map(v=>v.trim()).filter(Boolean);y.kaz=g.length?g:y.plan.map(p=>p.kazanim).filter(Boolean).slice(0,4);db.dersler.push(y)}
+const y=ders(x.ad,'',n,x.hoca,+x.fiyat,[],[]);Object.assign(y,{duzey,bas:x.bas,bit:x.bit,yeni:true,atama:{kim:roller[rol]+': '+kisi[rol],tarih:bugunStr()}});y.plan.forEach((p,i)=>{p.konu=x['k'+(i+1)]||p.konu;p.kazanim=x['z'+(i+1)]||''});const g=(x.genel||'').split('\n').map(v=>v.trim()).filter(Boolean);y.kaz=g.length?g:y.plan.map(p=>p.kazanim).filter(Boolean).slice(0,4);db.dersler.push(y)}
+if(t=='ata'){const d=D(x.id);if(!x.hoca)return toast('Bir öğretmen seçin');
+if(uygunluk(x.hoca,d.duzey,d.id).s!='uygun'&&!x.onayla)return toast('Uygunluk uyarısını onaylayın veya başka öğretmen seçin');
+d.hoca=x.hoca;d.atama={kim:roller[rol]+': '+kisi[rol],tarih:bugunStr()};ata=null;toast('Öğretmen atandı');return ciz()}
 if(t=='kaz')D(sec.d).kaz.push(x.kaz);
 if(t=='plan')Object.assign(D(sec.d).plan[sec.h-1],{konu:x.konu,kazanim:x.kazanim||'',gunluk:x.gunluk||''});
 if(t=='odev'){const fd=new FormData(f),file=fd.get('dosya');
@@ -887,7 +923,7 @@ if(t.not||t.neden){const k=t.not||t.neden;(db.yokNot[k]||(db.yokNot[k]={}))[t.no
 if(t.dersnot){db.dersNot[t.dersnot]=e.target.value;return}
 if(e.target.classList.contains('kara')){const t=e.target.dataset.t;kg[t].ara=e.target.value;$('#kliste').innerHTML=kisiListesi(t);return}if(e.target.id=='hara'){hg.ara=e.target.value;$('#hliste').innerHTML=hocaListesi();return}if(e.target.id!='ara')return;ara=e.target.value;if(!$('#liste')){location.hash='ana';return setTimeout(()=>$('#dersler').scrollIntoView(),60)}$('#liste').innerHTML=liste_();$('#dersler').scrollIntoView()});
 document.addEventListener('click',e=>{if(e.target.type=='date'){try{e.target.showPicker()}catch(_){}}});
-document.addEventListener('change',e=>{const fr=e.target.form;if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{D(id).foto=r.result;toast('Fotoğraf eklendi');ciz()};r.readAsDataURL(f)});
+document.addEventListener('change',e=>{const fr=e.target.form;if(fr&&(fr.dataset.f=='ders'||fr.dataset.f=='ata')){if(fr.dataset.f=='ders'&&e.target.name=='duzey')return adayYenile(fr);if(e.target.name=='hoca'||(fr.dataset.f=='ata'&&!e.target.dataset.foto))return uygunsuzGoster(fr)}if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{D(id).foto=r.result;toast('Fotoğraf eklendi');ciz()};r.readAsDataURL(f)});
 addEventListener('keydown',e=>{if(e.key=='Escape')oynaticiKapat()});
 addEventListener('hashchange',()=>{oynaticiKapat();ciz();scrollTo(0,0)});
 ciz();
