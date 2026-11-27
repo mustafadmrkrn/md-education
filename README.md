@@ -1,7 +1,10 @@
-# MD Education (prototip)
+# MD Education (deneme sürümü)
 
-Eğitim platformu arayüz prototipi: ders vitrini ve admin, kurum, öğretmen, öğrenci, veli panelleri.
+Eğitim platformu: ders vitrini ve admin, kurum, öğretmen, öğrenci, veli panelleri.
 
-**Not:** Tüm kişiler, ücretler ve veriler örnektir. Gerçek üyelik, şifre ve veritabanı yoktur; sayfa yenilenince veriler sıfırlanır. Gerçek öğrenci veya veli bilgisi girmeyin.
+- Arayüz tek dosyadır (`index.html`), GitHub Pages ile yayınlanır.
+- Veriler ve girişler Supabase'de tutulur (Frankfurt). Her rol yalnızca yetkili olduğu veriyi görür; kurallar `supabase/` klasöründedir.
+- Giriş sayfasındaki "Örnek veriyle gezin" bölümü şifresizdir ve hiçbir şey kaydetmez.
+- Dosya ve video yükleme henüz yoktur; bağlantı (https://) kullanılır.
 
-Tek dosyadır (`index.html`); tarayıcıda açarak veya GitHub Pages ile çalıştırılır.
+**Not:** Dersler ve ücretler örnektir. Aydınlatma ve açık rıza metinleri taslaktır. Hukuki onay tamamlanmadan gerçek öğrenci veya veli bilgisi girmeyin.

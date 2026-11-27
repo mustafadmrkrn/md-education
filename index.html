@@ -221,10 +221,11 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 .aday{display:flex!important;gap:10px;align-items:flex-start;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;min-width:0;text-align:left}.aday>input{width:auto!important;margin-top:12px;flex:none}.aday>div{flex:1;min-width:0}.aday:has(input:checked){border-color:#1749b3;background:#f4f7ff}
 .aday .kim{font-size:14px;color:var(--ink);text-align:left}.aday .kim .mut{font-size:12px}
 .aday dl{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0 0;font-size:12px}.aday dt{color:var(--mut)}.aday dd{margin:0;overflow-wrap:anywhere}.uyari-metin{display:block;margin-top:8px;color:#9a4d00}.uygunsuz{margin-top:10px;background:#fff4e8;padding:10px 12px;border-radius:12px}.uygunsuz[hidden]{display:none}
+#kayitdurum{position:fixed;left:16px;bottom:16px;z-index:60;background:#1c1d1f;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px}
 </style>
 </head>
 <body>
-<div class="demo">Prototip: tüm kişiler ve veriler örnektir. Değişiklikler sayfa yenilenince sıfırlanır.</div>
+<div class="demo" id="serit">Prototip: tüm kişiler ve veriler örnektir. Değişiklikler sayfa yenilenince sıfırlanır.</div>
 <header id="hd"></header>
 <main id="app"></main>
 <footer>MD Education · Prototip</footer>
@@ -233,8 +234,8 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 const $=s=>document.querySelector(s);
 const E=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const renk=['#2f8f5b','#d64570','#2f6fd0','#7a4bd0','#e07b24','#0f8b8d','#8a5a3b'];
-let nid=1;
-function ders(ad,kat,hafta,hoca,fiyat,kaz,konu){return{id:'d'+nid++,ad,kat,hafta,hoca,fiyat,kaz,plan:Array.from({length:hafta},(_,i)=>({konu:konu[i]||(i==hafta-1?'Final projesi ve değerlendirme':'Uygulama ve tekrar '+(i+1)),gunluk:'',kayit:i<3}))}}
+let nid=1,bulut=false,demo=false;
+function ders(ad,kat,hafta,hoca,fiyat,kaz,konu){return{id:bulut?'d'+Date.now():'d'+nid++,ad,kat,hafta,hoca,fiyat,kaz,plan:Array.from({length:hafta},(_,i)=>({konu:konu[i]||(i==hafta-1?'Final projesi ve değerlendirme':'Uygulama ve tekrar '+(i+1)),gunluk:'',kayit:i<3}))}}
 const db={
 hocalar:['Elif Yıldız','Mert Kaya','Zeynep Arslan','Can Demir'],
 kurumlar:[{ad:'Örnek Kurum A',sehir:'İstanbul'}],
@@ -331,7 +332,7 @@ const kisi={admin:'Sistem Yöneticisi',kurum:'Örnek Kurum A',ogretmen:'Mert Kay
 const DUZEY=['Anaokul','İlkokul','Ortaokul','Lise','Üniversite','Mezun','Eğitmen Eğitimi'];
 [[1,2],[2,3],[2],[3],[1,2],[1,2,3],[3,4,5],[2,3]].forEach((l,i)=>db.dersler[i].duzey=l.map(n=>DUZEY[n]));
 const dz=d=>(d.duzey||[]).join(', ');
-const simdi=d=>d.bas?Math.max(0,Math.min(d.hafta,Math.floor((new Date().setHours(12,0,0,0)-new Date(d.bas+'T12:00'))/6048e5)+1)):Math.min(SIMDI,d.hafta);
+const simdi=d=>d.bas?Math.max(0,Math.min(d.hafta,Math.floor((new Date().setHours(12,0,0,0)-new Date(d.bas+'T12:00'))/6048e5)+1)):Math.min(bulut?1:SIMDI,d.hafta);
 const haftaSayisi=(a,b)=>{const g=Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5);return g>=0?Math.floor(g/7)+1:0};
 const gunAdi=t=>new Date(t+'T12:00').toLocaleDateString('tr',{day:'numeric',month:'long',year:'numeric'});
 let ara='',rol=null,tab=0,kat='Tümü',sec={d:'d3',h:SIMDI};
@@ -345,7 +346,7 @@ const secim=(ad,l,o)=>`<div><label>${l}<select name="${ad}">${o.map(x=>Array.isA
 const form=(f,ic,btn)=>`<form class="card" data-f="${f}">${ic}<div><button class="btn">${btn}</button></div></form>`;
 const kart=d=>`<a class="card" href="#${d.id}">${img(d,'cover')}<div style="padding:10px 4px 0"><span class="tag">${E(dz(d))}</span><h3 style="margin-top:6px">${E(d.ad)}</h3><div class="mut">${d.hafta} hafta · ${E(d.hoca)}</div></div></a>`;
 
-function header(){if(document.activeElement&&document.activeElement.id=='ara')return;$('#hd').innerHTML=`<a class="logo" href="#ana">MD<span> Education</span></a><a class="nav" href="#ana" data-a="git">Keşfedin</a><input id="ara" type="search" placeholder="Dilediğiniz dersi arayın" aria-label="Ders ara" value="${E(ara)}"><a class="nav" href="#giris">Kurumlar için</a><a class="nav" href="#kayit">Eğitim verin</a>`+(rol?`<a href="#panel">Panelim</a><span class="tag">${roller[rol]}: ${E(kisi[rol])}</span><button class="btn o s" data-a="cikis">Çıkış</button>`:`<a class="btn o" href="#giris">Oturum aç</a><a class="btn" href="#kayit">Kaydol</a>`)}
+function header(){if(document.activeElement&&document.activeElement.id=='ara')return;$('#hd').innerHTML=`<a class="logo" href="#ana">MD<span> Education</span></a><a class="nav" href="#ana" data-a="git">Keşfedin</a><input id="ara" type="search" placeholder="Dilediğiniz dersi arayın" aria-label="Ders ara" value="${E(ara)}"><a class="nav" href="#giris">Kurumlar için</a><a class="nav" href="#kayit">Eğitim verin</a>`+(rol?`<a href="#panel">Panelim</a><span class="tag">${roller[rol]}: ${E(kisi[rol])}</span>${bulut?'<a href="#sifre">Şifre</a>':''}<button class="btn o s" data-a="cikis">Çıkış</button>`:`<a class="btn o" href="#giris">Oturum aç</a><a class="btn" href="#kayit">Kaydol</a>`)}
 function liste_(){const q=ara.toLocaleLowerCase('tr');return db.dersler.filter(d=>(kat=='Tümü'||d.duzey.includes(kat))&&(d.ad+' '+d.kat+' '+dz(d)).toLocaleLowerCase('tr').includes(q)).map(kart).join('')||'<p class="mut">Aramanıza uygun ders bulunamadı.</p>'}
 function ana(){
 const liste=[...db.dersler].reverse();
@@ -380,10 +381,10 @@ return `<div class="dt" style="--k1:${c1};--k2:${c2}">
 <div class="dt-kaz ogren">${d.kaz.length?`<ul>${d.kaz.map((k,i)=>`<li style="--c:${R4[i%4]}"><i>${i+1}</i>${E(k)}</li>`).join('')}</ul>`:'<p class="mut">Öğretmen henüz kazanım eklemedi.</p>'}</div>
 <h2 class="dt-baslik">${d.hafta} haftalık yol haritası</h2>
 <div class="dt-yol">${d.plan.map((p,i)=>`<div style="--c:${R4[Math.floor(i/4)%4]}"><small>${i+1}. hafta</small><b>${E(p.konu)}</b>${hk(p)}</div>`).join('')}</div>
-<div class="dt-iki"><section class="blok"><h2>${I('graduation-cap',20)} Öğretmeniniz</h2><div class="kim">${avatar(d.hoca,64)}<div><b>${E(d.hoca)}</b><div class="mut">${E(db.dersler.filter(x=>x.hoca==d.hoca).map(x=>x.ad).join(' · '))}</div></div></div></section>
+<div class="dt-iki"><section class="blok"><h2>${I('graduation-cap',20)} Öğretmeniniz</h2><div class="kim">${avatar(d.hoca,64)}<div><b>${E(d.hoca)}</b><div class="mut">${E(d.hoca==BOSHOCA?'Bu derse henüz öğretmen atanmadı.':db.dersler.filter(x=>x.hoca==d.hoca).map(x=>x.ad).join(' · '))}</div></div></div></section>
 <section class="blok"><h2>${I('check',20)} Gereksinimler</h2><ul class="gerek"><li>İnternet bağlantısı</li><li>${sozel?'Bilgisayar veya tablet, kulaklık':'Bilgisayar ve kulaklık'}</li><li>Derse düzenli katılım</li></ul></section></div></div>
 ${kazPanel(d,true)}`}
-function giris(){return `<h1>Oturum aç</h1><h2>Admin girişi</h2><form class="card" data-f="giris">${alan('kullanici','Kullanıcı adı','text','autocomplete="off" autocapitalize="none"')}${alan('sifre','Şifre','password','autocomplete="off"')}<div><button class="btn">Giriş yap</button></div></form><h2>Demo panelleri</h2><p class="mut">Diğer roller prototipte şifresiz açılır.</p><div class="grid giris">${Object.keys(roller).filter(r=>r!='admin').map(r=>`<div class="card" style="--p:${TEMA[r][0]}"><span class="buyuk">${I(TEMA[r][2],28)}</span><h3>${roller[r]}</h3><p class="mut">${E(kisi[r])}</p><button class="btn" data-a="gir" data-v="${r}">${roller[r]} olarak gir</button></div>`).join('')}</div>`}
+function giris(){return `<h1>Oturum aç</h1><form class="card" data-f="oturum">${alan('eposta','E-posta','email','autocomplete="username"')}${alan('sifre','Şifre','password','autocomplete="current-password"')}<div><button class="btn">Giriş yap</button></div></form><p class="mut">Hesabınızı kurumunuz açar.</p><h2>Örnek veriyle gezin</h2><p class="mut">Şifresizdir; yaptığınız değişiklikler kaydedilmez.</p><div class="grid giris">${Object.keys(roller).map(r=>`<div class="card" style="--p:${TEMA[r][0]}"><span class="buyuk">${I(TEMA[r][2],28)}</span><h3>${roller[r]}</h3><p class="mut">${r=='admin'?'Örnek yönetici':E(JSON.parse(ORNEK).kisi[r])}</p><button class="btn" data-a="gir" data-v="${r}">${roller[r]} olarak gir</button></div>`).join('')}</div>`}
 function kayit(){return `<h1>Kaydol</h1><p class="mut">Veli, öğrenci ve öğretmen başvurur; admin onaylar. Kurum hesabını admin açar. Gerçek bilgi girmeyin.</p>${form('kayit',secim('tip','Rol',['Veli','Öğrenci','Öğretmen'])+alan('ad','Ad soyad'),'Başvuru gönder')}`}
 
 const sekme={admin:['Özet','Kurumlar','Öğretmenler','Dersler','Veliler','Öğrenciler','Başvurular'],kurum:['Özet','Öğretmenler','Dersler','Veliler','Öğrenciler'],ogretmen:['Kazanım ve plan','Yoklama','Ödevler','Öğrencilerim','Ders kayıtları'],ogrenci:['Haftalarım','Ödevlerim','Ders kayıtları'],veli:['Genel durum','Yoklama','Ödevler','Ödemeler','Ders kayıtları','Yazılı Onaylar']};
@@ -459,6 +460,7 @@ const hizli=rol=='admin'?[['building-2','1. Kurum aç',1],['user-plus','2. Öğr
 return kutular([['backpack','Öğrenci',db.ogrenciler.length,'#4f46e5'],['graduation-cap','Öğretmen',db.hocalar.length,'#ea580c'],['book-open','Ders',db.dersler.length,'#0891b2'],['users','Veli',db.veliler.length,'#db2777'],['building-2','Kurum',db.kurumlar.length,'#059669']])
 +`<div class="hizli">${hizli.map(([ik,a,t])=>`<button data-a="tab" data-v="${t}">${I(ik,22)}${a}</button>`).join('')}</div>`
 +analizler()
++hesapBlok()
 +blok('book-open','Verilen dersler',`<div class="dkart">${db.dersler.map(d=>`<a href="#${d.id}">${img(d)}<div><b>${E(d.ad)}</b><div class="mut">${I('clock',14)} ${d.hafta} hafta · ${I('users',14)} ${sayi(d.id)} öğrenci</div>${kim(d.hoca)}</div></a>`).join('')}</div>`)}
 const MEZUNIYET=['Ön lisans','Lisans','Yüksek lisans','Doktora','Öğrenci (lisans devam)'];
 const CALISMA=['Tam zamanlı','Yarı zamanlı','Saatlik'];
@@ -477,7 +479,7 @@ const bolumKutu=(no,ik,baslik,alt,ic)=>`<section class="hbolum"><header class="h
 function hocaFormu(){
 const eski=hg.form=='yeni'?null:hg.form,k=eski?hk_(eski):{dersler:[],duzeyler:[],gunler:[]};
 return `<form class="hform" data-f="hoca"><input type="hidden" name="eski" value="${E(eski||'')}">
-<p class="not">${I('shield-check',16)} Prototiptir, bilgiler kaydedilip saklanmaz. Gerçek kişi bilgisi girmeyin.</p>
+<p class="not">${I('shield-check',16)} ${bulut?'Bilgiler sunucuda (Frankfurt) saklanır. Hukuki onay tamamlanmadan gerçek kişi, özellikle çocuk bilgisi girmeyin.':'Örnek moddasınız, bilgiler kaydedilmez. Gerçek kişi, özellikle çocuk bilgisi girmeyin.'}</p>
 ${bolumKutu(1,'user-round','Kişisel bilgiler','İletişim için kullanılır',girdi('ad','Ad soyad',eski,'text','',true)+girdi('eposta','E-posta',k.eposta,'email','',true)+girdi('telefon','Telefon',k.telefon,'tel','pattern="[0-9+ ()\\-]{10,20}" placeholder="05xx xxx xx xx"',true)+girdi('sehir','Şehir',k.sehir))}
 ${bolumKutu(2,'graduation-cap','Eğitim','Mezuniyet bilgileri',acilir('mezuniyet','Mezuniyet düzeyi',MEZUNIYET,k.mezuniyet,true)+girdi('universite','Üniversite',k.universite)+girdi('bolum','Bölüm',k.bolum)+girdi('yil','Mezuniyet yılı',k.yil,'number','min="1960" max="2035"')+`<label class="tum">Sertifikalar<textarea name="sertifika" rows="2">${E(k.sertifika||'')}</textarea></label>`)}
 ${bolumKutu(3,'book-open','Uzmanlık ve dersler','Ders henüz açılmadıysa uzmanlık alanını yazın',`<label class="tum">Uzmanlık alanları<input name="uzmanlik" value="${E(k.uzmanlik||'')}" placeholder="Örn. Python, robotik, İngilizce"></label>`+kutular_('dersler','Dersler',db.dersler.map(d=>[d.id,d.ad]),k.dersler)+kutular_('duzeyler','Çalışabileceği düzeyler',DUZEY,k.duzeyler))}
@@ -501,6 +503,7 @@ const aktif=aktifHocalar().length;
 return kutular([['graduation-cap','Toplam öğretmen',db.hocalar.length,'#4f46e5'],['check','Aktif',aktif,'#059669'],['power','Pasif',db.hocalar.length-aktif,'#ea580c']])+blok('graduation-cap','Öğretmenler',`<div class="arac"><input id="hara" type="search" placeholder="Ad, e-posta, bölüm veya ders ara" aria-label="Öğretmen ara" value="${E(hg.ara)}"><div class="chips">${['Tümü','Aktif','Pasif'].map(x=>`<button data-a="hfiltre" data-v="${x}" class="${hg.durum==x?'on':''}">${x}</button>`).join('')}</div><button class="btn" data-a="hyeni">${I('user-plus',16)} Yeni öğretmen</button></div><div class="hliste" id="hliste">${hocaListesi()}</div>`)}
 function hocaKaydet(f,x){
 const fd=new FormData(f),eski=x.eski,dersler=fd.getAll('dersler');
+if(bulut&&eski&&x.ad!==eski){toast('Giriş hesabı ada bağlı olduğu için ad değiştirilemez');return false}
 if(!x.ad){toast('Ad soyad yazın');return false}
 if(!dersler.length&&!x.uzmanlik){toast('Uzmanlık alanı yazın veya en az bir ders seçin');return false}
 if(!fd.getAll('duzeyler').length){toast('Çalışabileceği en az bir düzey seçin');return false}
@@ -552,7 +555,7 @@ const vk=v=>veliKayit[v]||{iletisim:[],saat:[],aktif:true};
 const ob=ad=>db.ogrenciler.find(o=>o.ad==ad);
 const aktifVeliler=()=>db.veliler.filter(v=>vk(v).aktif);
 const yas=t=>{if(!t)return'';const d=new Date(t),n=new Date();let y=n.getFullYear()-d.getFullYear();if(n.getMonth()<d.getMonth()||(n.getMonth()==d.getMonth()&&n.getDate()<d.getDate()))y--;return y+' yaş'};
-const uyari=()=>`<p class="not">${I('shield-check',16)} Prototiptir, bilgiler kaydedilip saklanmaz. Gerçek kişi, özellikle çocuk bilgisi girmeyin.</p>`;
+const uyari=()=>`<p class="not">${I('shield-check',16)} ${bulut?'Bilgiler sunucuda (Frankfurt) saklanır. Hukuki onay tamamlanmadan gerçek kişi, özellikle çocuk bilgisi girmeyin.':'Örnek moddasınız, bilgiler kaydedilmez. Gerçek kişi, özellikle çocuk bilgisi girmeyin.'}</p>`;
 const onayKutu=(ad,m,secili,zorunlu)=>`<label class="onay"><input type="checkbox" name="${ad}" ${secili?'checked':''} ${zorunlu?'required':''}> ${m}${zorunlu?' <em>*</em>':''}</label>`;
 const dugmeler=(t,m)=>`<div class="eylem sol"><button class="btn big">${I('save',16)} ${m}</button><button type="button" class="btn o big" data-a="kkapat" data-t="${t}">Vazgeç</button></div>`;
 
@@ -611,6 +614,7 @@ if(db.riza[eski]){db.riza[yeni]=db.riza[eski];delete db.riza[eski]}
 if(kisi.ogrenci==eski)kisi.ogrenci=yeni}
 function ogrKaydet(f,x){
 const fd=new FormData(f),eski=x.eski,dersler=fd.getAll('dersler');
+if(bulut&&eski&&x.ad!==eski){toast('Giriş hesabı ada bağlı olduğu için ad değiştirilemez');return false}
 if(!x.ad||!dersler.length){toast(x.ad?'En az bir ders seçin':'Ad soyad yazın');return false}
 if(x.ad!==eski&&ob(x.ad)){toast('Bu adla bir öğrenci zaten var');return false}
 const o=eski?ob(eski):{aktif:true};
@@ -620,6 +624,7 @@ if(eski&&eski!=x.ad)ogrAdDegis(eski,x.ad);
 o.ad=x.ad;if(!eski)db.ogrenciler.push(o);kg.ogr.form=null;kg.ogr.ac=x.ad;return true}
 function veliKaydet(f,x){
 const fd=new FormData(f),eski=x.eski;
+if(bulut&&eski&&x.ad!==eski){toast('Giriş hesabı ada bağlı olduğu için ad değiştirilemez');return false}
 if(!x.ad){toast('Ad soyad yazın');return false}
 if(x.ad!==eski&&db.veliler.includes(x.ad)){toast('Bu adla bir veli zaten var');return false}
 const k={...(eski?vk(eski):{aktif:true}),iletisim:fd.getAll('iletisim'),saat:fd.getAll('saat'),ticari:!!x.ticari};
@@ -638,7 +643,7 @@ if(a=='kfiltre')g.durum=v;
 if(a=='kdurum'){if(t=='ogr'){const o=ob(v);o.aktif=o.aktif===false}else{const k=veliKayit[v]||(veliKayit[v]=vk(v));k.aktif=!k.aktif}}
 if(a=='ksil'){
 const engel=t=='ogr'?(v==kisi.ogrenci||Object.keys(db.yoklama).some(k=>k.endsWith('|'+v))||db.odemeler.some(p=>p.ogr==v)?'Yoklama veya ödeme kaydı olan öğrenci silinemez. Pasife alabilirsiniz.':''):(v==kisi.veli||db.ogrenciler.some(o=>o.veli==v)?'Öğrencisi olan veli silinemez. Pasife alabilirsiniz.':'');
-if(engel)toast(engel);else if(g.sil!=v)g.sil=v;else{if(t=='ogr')db.ogrenciler.splice(db.ogrenciler.findIndex(o=>o.ad==v),1);else{db.veliler.splice(db.veliler.indexOf(v),1);delete veliKayit[v]}g.sil=null;toast('Kayıt silindi')}}
+if(engel)toast(engel);else if(g.sil!=v)g.sil=v;else{if(t=='ogr'){db.ogrenciler.splice(db.ogrenciler.findIndex(o=>o.ad==v),1);delete db.riza[v];db.odevler.forEach(x=>delete x.teslim[v])}else{db.veliler.splice(db.veliler.indexOf(v),1);delete veliKayit[v]}g.sil=null;toast('Kayıt silindi')}}
 if(a!='ksil')g.sil=null}
 
 // ders yönetimi ve öğretmen atama (admin ve kurum)
@@ -664,7 +669,7 @@ function dersT(){
 const yeni=blok('circle-plus','Yeni ders',form('ders',alan('ad','Ders adı')+duzeyAlani()+alan('bas','Başlangıç tarihi','date')+alan('bit','Bitiş tarihi','date')+'<div class="tum sure-bilgi" aria-live="polite">Başlangıç ve bitiş tarihini seçin; hafta sayısı otomatik hesaplanır.</div>'+alan('fiyat','Ücret (TL)','number','min="0"')+`<fieldset class="tum"><legend>Öğretmen ata</legend><p class="mut">Yukarıda düzey seçince uygunluk hesaplanır. Branş uygunluğunu bölüm ve derslerden kontrol edin.</p><div class="adaylar">${adaylar([],null)}</div>${onayKutusu}</fieldset>`+haftaAlanlari(),'Ders ekle'));
 const atanan=ata&&D(ata);
 const panelAta=atanan?blok('user-plus',`Öğretmen ata: ${E(atanan.ad)}`,`<form class="hform" data-f="ata"><input type="hidden" name="id" value="${atanan.id}"><p class="mut">Ders düzeyi: ${E(atanan.duzey.join(', '))} · Şu anki öğretmen: ${E(atanan.hoca)}</p><div class="adaylar">${adaylar(atanan.duzey,atanan.id,atanan.hoca)}</div>${onayKutusu}<div class="eylem sol"><button class="btn">${I('check',15)} Atamayı kaydet</button><button type="button" class="btn s" data-a="atac" data-v="">Vazgeç</button></div></form>`):'';
-return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div>${kim(d.hoca)}<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
+return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div>${kim(d.hoca)}${d.hoca==BOSHOCA?'':`<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>`}${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
 
 const panel={
 admin:[ozet,
@@ -710,9 +715,9 @@ const odBas=(x,sag='')=>`<header class="odbas"><span class="buyuk">${I(ODTUR[x.t
 const odBilgi=(x,veli)=>`<div class="odic">${x.aciklama?`<div><small>Yönerge</small><p>${E(x.aciklama)}</p></div>`:''}${x.kazanim?`<div><small>Bu ödevin kazandırdığı</small><p>${E(x.kazanim)}</p></div>`:''}${x.bicim&&x.bicim.length?`<div><small>Teslim biçimi</small><p>${x.bicim.map(E).join(', ')}</p></div>`:''}${x.link||x.dosya?`<div><small>Kaynaklar</small><p>${ek(x.link,x.dosya)}</p></div>`:''}${veli&&x.veliNot?`<div class="velinot"><small>${I('message-circle',13)} Veliye not</small><p>${E(x.veliNot)}</p></div>`:''}</div>`;
 const odTeslim=(x,t)=>t?`<div class="teslimkutu"><small>Gönderilen çalışma · ${tarih(t.tarih)}</small>${t.metin?`<p>${E(t.metin)}</p>`:''}<div>${ek(t.link,t.dosya)}</div>${t.sonuc||t.puan||t.yorum?`<div class="geribildirim"><b>${I('graduation-cap',15)} Öğretmen değerlendirmesi</b>${t.puan!==''&&t.puan!=null?`<span class="notu">${E(t.puan)} / ${E(x.puan||100)}</span>`:''}<p>${E(t.yorum||'Yorum yazılmadı')}</p></div>`:'<div class="mut">Henüz değerlendirilmedi</div>'}</div>`:'';
 const uzunAlan=(ad,l,ph,zorunlu=false,v='')=>`<label class="tum">${l}${zorunlu?' <em>*</em>':''}<textarea name="${ad}" rows="3" placeholder="${ph}" ${zorunlu?'required':''}>${E(v)}</textarea></label>`;
-const yerel=`<p class="not">${I('info',16)} Prototip: eklenen dosya ve videolar yalnızca bu tarayıcıda durur, sayfa yenilenince silinir.</p>`;
+const yerelNot=()=>`<p class="not">${I('info',16)} ${bulut?'Dosya yükleme henüz açık değil; https:// ile başlayan bağlantı kullanın.':'Örnek mod: eklenen dosya ve videolar sayfa yenilenince silinir.'}</p>`;
 
-function odevForm(d,ogr){return `<form class="hform" data-f="odev">${yerel}
+function odevForm(d,ogr){return `<form class="hform" data-f="odev">${yerelNot()}
 ${bolumKutu(1,'file-pen-line','Ödev bilgisi','Başlık, tür ve ilgili hafta',girdi('baslik','Ödev başlığı','','text','maxlength="100"',true)+acilir('tur','Ödev türü',Object.keys(ODTUR),'Alıştırma',true)+`<label>İlgili hafta<select name="hafta">${d.plan.map((p,i)=>`<option value="${i+1}" ${i+1==simdi(d)?'selected':''}>${i+1}. hafta: ${E(p.konu)}</option>`).join('')}</select></label>`)}
 ${bolumKutu(2,'list-checks','Yönerge ve kaynak','Öğrencinin ne yapacağını adım adım yazın',uzunAlan('aciklama','Yönerge','1. Adım...  2. Adım...',true)+girdi('kazanim','Bu ödevin kazandırdığı','')+girdi('link','Kaynak bağlantısı (https://)','','url')+`<label>Çalışma dosyası<input type="file" name="dosya"></label>`)}
 ${bolumKutu(3,'calendar','Teslim ve puan','Son tarih, saat ve teslim biçimi',girdi('son','Son teslim tarihi','','date',`min="${bugunStr()}"`,true)+girdi('saat','Son saat','23:59','time')+girdi('puan','Tam puan','100','number','min="1" max="100"')+girdi('sure','Tahmini süre (dakika)','30','number','min="5" max="600"')+kutular_('bicim','Teslim biçimi',ODBICIM,['Yazılı cevap']))}
@@ -739,7 +744,7 @@ const ort=puanli.length?Math.round(puanli.reduce((a,x)=>a+100*t(x).puan/(x.puan|
 const l=tum.filter(suz[od.filtre]);
 return kutular([['notebook-pen','Toplam ödev',tum.length,'#4f46e5'],['clock','Bekleyen',tum.filter(suz['Bekleyen']).length,'#ea580c'],['circle-check-big','Teslim edilen',tum.filter(t).length,'#059669'],['award','Ortalama (100 üzerinden)',ort,'#db2777']])+
 blok('notebook-pen',veli?'Ödev takibi':'Ödevlerim',`<div class="chips odf">${Object.keys(suz).map(k=>`<button data-a="ofiltre" data-v="${k}" class="${od.filtre==k?'on':''}">${k} (${tum.filter(suz[k]).length})</button>`).join('')}</div>${l.length?`<div class="odliste">${l.map(x=>{const s=t(x),acik=od.teslim==x.id,gonder=!veli&&(!s||s.sonuc!='tamam');
-return `<article class="odkart ${odDurum(x,o.ad)[1]}">${odBas(x,rozet_(odDurum(x,o.ad)))}${odBilgi(x,veli)}${odTeslim(x,s)}${veli&&!s?`<div class="mut">${I('info',13)} Henüz çalışma gönderilmedi.</div>`:''}${gonder?(acik?`<form class="hform" data-f="teslimet"><input type="hidden" name="id" value="${x.id}">${yerel}<div class="halan duz">${uzunAlan('metin','Cevabım / açıklamam','Ne yaptığınızı yazın',false,s?.metin||'')}<label>Proje bağlantısı (https://)<input type="url" name="link" value="${E(s?.link||'')}"></label><label>Dosya<input type="file" name="dosya"></label></div><div class="eylem sol"><button class="btn">${I('send',15)} Gönder</button><button type="button" class="btn s" data-a="oteslim" data-v="">Vazgeç</button></div></form>`:`<div class="eylem sol"><button class="btn s" data-a="oteslim" data-v="${x.id}">${I('upload',14)} ${s?'Yeniden gönder':'Ödevi teslim et'}</button></div>`):''}</article>`}).join('')}</div>`:bos('Bu listede ödev yok.')}`)}
+return `<article class="odkart ${odDurum(x,o.ad)[1]}">${odBas(x,rozet_(odDurum(x,o.ad)))}${odBilgi(x,veli)}${odTeslim(x,s)}${veli&&!s?`<div class="mut">${I('info',13)} Henüz çalışma gönderilmedi.</div>`:''}${gonder?(acik?`<form class="hform" data-f="teslimet"><input type="hidden" name="id" value="${x.id}">${yerelNot()}<div class="halan duz">${uzunAlan('metin','Cevabım / açıklamam','Ne yaptığınızı yazın',false,s?.metin||'')}<label>Proje bağlantısı (https://)<input type="url" name="link" value="${E(s?.link||'')}"></label><label>Dosya<input type="file" name="dosya"></label></div><div class="eylem sol"><button class="btn">${I('send',15)} Gönder</button><button type="button" class="btn s" data-a="oteslim" data-v="">Vazgeç</button></div></form>`:`<div class="eylem sol"><button class="btn s" data-a="oteslim" data-v="${x.id}">${I('upload',14)} ${s?'Yeniden gönder':'Ödevi teslim et'}</button></div>`):''}</article>`}).join('')}</div>`:bos('Bu listede ödev yok.')}`)}
 
 const kayitAl=(d,h)=>db.kayitlar[`${d}|${h}`];
 const kayitAcik=(d,h,ad)=>{const k=kayitAl(d,h);return !!k&&(k.erisim=='herkes'||['yok','mazeret','erken'].includes(db.yoklama[`${d}|${h}|${ad}`]))};
@@ -747,7 +752,7 @@ const kayitSatir=(d,h,k,sag)=>`<div class="kayit"><span class="kayitik">${I('pla
 const izleBtn=(d,h)=>`<button class="btn s" data-a="izle" data-v="${d}|${h}">${I('play',14)} Kaydı izle</button>`;
 function kayitHoca(d){
 const k=kayitAl(d.id,sec.h),l=d.plan.map((_,i)=>i+1).filter(h=>kayitAl(d.id,h));
-return blok('upload',`Ders kaydı ${k?'düzenle':'ekle'}`,haftaSec(d)+`<form class="hform" data-f="kayitekle">${yerel}
+return blok('upload',`Ders kaydı ${k?'düzenle':'ekle'}`,haftaSec(d)+`<form class="hform" data-f="kayitekle">${yerelNot()}
 ${bolumKutu(1,'video',`Video: ${sec.h}. hafta, ${E(d.plan[sec.h-1].konu)}`,'Video bağlantısı verin veya video dosyası seçin',girdi('baslik','Kayıt başlığı',k?.baslik||`${sec.h}. hafta ders kaydı`,'text','',true)+girdi('url','Video bağlantısı (https://)',k?.url||'','url')+`<label>Video dosyası<input type="file" name="video" accept="video/*">${k?.dosya?`<small class="mut">Yüklü: ${E(k.dosya.ad)}</small>`:''}</label>`+girdi('sure','Süre (dakika)',k?.sure||'40','number','min="1" max="300"')+`<label>Kimler izleyebilir<select name="erisim"><option value="yok" ${k?.erisim!='herkes'?'selected':''}>Yalnızca derse katılamayanlar</option><option value="herkes" ${k?.erisim=='herkes'?'selected':''}>Dersteki herkes</option></select></label>`+uzunAlan('aciklama','Açıklama','Kayıtta neler işlendi?',false,k?.aciklama||''))}
 <div class="eylem sol"><button class="btn">${I('save',16)} Kaydı ${k?'güncelle':'ekle'}</button></div></form>`)+
 blok('video',`Eklenen kayıtlar (${l.length})`,l.length?l.map(h=>{const r=kayitAl(d.id,h),id=`${d.id}|${h}`;return kayitSatir(d,h,r,`<span class="tag">${r.erisim=='herkes'?'Herkese açık':'Katılamayanlara'}</span><div class="eylem">${izleBtn(d.id,h)}${od.sil=='k'+id?`<button class="btn s tehlike" data-a="ksil2" data-v="${id}">Evet, sil</button>`:`<button class="btn s" data-a="ksil2" data-v="${id}" aria-label="Kaydı sil">${I('trash-2',14)}</button>`}</div>`)}).join(''):bos('Bu derse henüz kayıt eklenmedi.'))}
@@ -760,7 +765,7 @@ const AYDINLATMA=[
 ['2. İşlenen veriler','Öğrencinin adı soyadı ve sınıfı; velinin adı soyadı; kayda girmesi hâlinde öğrencinin görüntüsü, sesi, yazılı mesajları ve ekran paylaşımı. Kamera açmak zorunlu değildir.'],
 ['3. İşleme amacı','Dersin kaydedilmesi, derse katılamayan öğrencilerin konuyu telafi edebilmesi ve eğitimin takibi. Kayıtlar reklam veya tanıtım için kullanılmaz.'],
 ['4. Toplama yöntemi ve hukuki sebep','Veriler, eğitim platformundaki formlar ve çevrim içi ders kaydı yoluyla elektronik ortamda toplanır. Ders kaydı ve paylaşımı, 6698 sayılı Kanun uyarınca açık rızaya dayanır.'],
-['5. Aktarım','Kayıtlar yalnızca yetkili öğretmen ve yöneticiler ile izin verilen öğrenci ve velilerin erişimine açılır; kanunen yetkili kurumların talebi saklıdır. Saklama için sunucuları yurt dışında olabilen bir bulut hizmeti (Google Drive) kullanılır. Yurt dışına aktarımın Kanunun 9. maddesindeki dayanağı: ____________________'],
+['5. Aktarım','Kayıtlar yalnızca yetkili öğretmen ve yöneticiler ile izin verilen öğrenci ve velilerin erişimine açılır; kanunen yetkili kurumların talebi saklıdır. Saklama için sunucuları yurt dışında bulunan bulut hizmetleri (platform verileri için Supabase, Frankfurt; ders videoları için Google Drive) kullanılır. Yurt dışına aktarımın Kanunun 9. maddesindeki dayanağı: ____________________'],
 ['6. Saklama süresi','Ders kayıtları ve derse ait veriler, ders grubu tamamlandığında silinir. Mevzuatın saklanmasını zorunlu tuttuğu kayıtlar yasal süresi boyunca tutulur.'],
 ['7. Haklarınız (Kanun m. 11)','Verinizin işlenip işlenmediğini öğrenme ve bilgi isteme; işleme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme; aktarıldığı kişileri bilme; eksik veya yanlış verinin düzeltilmesini, şartları oluştuğunda silinmesini veya yok edilmesini ve bu işlemlerin aktarılan kişilere bildirilmesini isteme; yalnızca otomatik sistemlerle yapılan analiz sonucunda aleyhinize çıkan sonuca itiraz etme; kanuna aykırı işleme nedeniyle uğradığınız zararın giderilmesini talep etme.'],
 ['8. Başvuru','Taleplerinizi yukarıdaki adrese yazılı olarak veya Kurumun belirlediği diğer yöntemlerle iletebilirsiniz. Başvurular en geç 30 gün içinde yanıtlanır. Yanıt yetersizse veya verilmezse Kişisel Verileri Koruma Kuruluna şikâyette bulunabilirsiniz.']];
@@ -818,7 +823,7 @@ if(tab==4)return ust+rizaOzet(d)+kayitHoca(d);
 return ust+`<p class="not">${I('lock',16)} Öğretmen veli, iletişim ve ödeme bilgilerini görmez.</p>`+blok('users','Öğrencilerim',`<div class="kisiler">${ogr.map(o=>`<div class="kisi">${avatar(o.ad,64)}<b>${E(o.ad)}</b><small>${E(o.sinif)}</small>${halka(oran(d.id,o.ad),'Devam','#059669')}</div>`).join('')}</div>`)}
 
 function ogrPanel(veli){
-const o=ob(kisi.ogrenci);const l=o.dersler.map(D).filter(Boolean);
+const o=ob(kisi.ogrenci);if(!o)return bos('Hesabınıza bağlı öğrenci yok.');const l=o.dersler.map(D).filter(Boolean);
 if(!l.length)return bos('Kayıtlı ders yok.');
 if(!l.some(d=>d.id==sec.d))sec.d=l[0].id;const d=D(sec.d);
 const odev=odevleri(d.id,o.ad),teslim=odev.filter(x=>x.teslim[o.ad]&&x.teslim[o.ad].sonuc!='eksik').length,devam=oran(d.id,o.ad);
@@ -838,8 +843,8 @@ if(!rol)return giris();
 const ic=rol=='ogretmen'?hocaPanel():rol=='ogrenci'?ogrPanel(false):rol=='veli'?ogrPanel(true):panel[rol][tab]();
 const [c1,c2,ikon,slogan,suslar]=TEMA[rol];
 return `<div class="pano" style="--p:${c1};--p2:${c2}"><aside><div class="ben"><span class="rozet">${I(ikon,30)}</span><b>${E(kisi[rol])}</b><small>${roller[rol]} paneli</small></div><nav class="tabs">${sekme[rol].map((s,i)=>`${sGrup[rol][i]?`<p class="grup">${sGrup[rol][i]}</p>`:''}<button data-a="tab" data-v="${i}" class="${i==tab?'on':''}">${I(sIkon[rol][i],20)}<span>${s}</span>${sSayi(rol,i)}</button>`).join('')}</nav></aside>
-<div class="icerik"><div class="karsila"><div><small>${roller[rol]} paneli</small><h1>${sekme[rol][tab]}</h1><p>${slogan}${rol=='veli'?' · Öğrenciniz: '+E(kisi.ogrenci):''}</p></div><div class="sus" aria-hidden="true">${suslar.map(s=>`<span>${I(s,34)}</span>`).join('')}</div></div>${ic}</div></div>`}
-function ciz(){const h=location.hash.slice(1);header();$('#app').innerHTML=h=='giris'?giris():h=='kayit'?kayit():h=='panel'?panelim():D(h)?detay(D(h)):ana()}
+<div class="icerik"><div class="karsila"><div><small>${roller[rol]} paneli</small><h1>${sekme[rol][tab]}</h1><p>${slogan}${rol=='veli'?' · Öğrenciniz: '+E(kisi.ogrenci):''}</p></div><div class="sus" aria-hidden="true">${suslar.map(s=>`<span>${I(s,34)}</span>`).join('')}</div></div>${bulut&&rol=='veli'&&db.ogrenciler.length>1?`<div class="chips">${db.ogrenciler.map(o=>`<button data-a="cocuk" data-v="${E(o.ad)}" class="${o.ad==kisi.ogrenci?'on':''}">${E(o.ad)}</button>`).join('')}</div>`:''}${ic}</div></div>`}
+function ciz(){const h=location.hash.slice(1);header();$('#serit').textContent=bulut?'Deneme sürümü: bilgiler sunucuda saklanır. Hukuki onay tamamlanmadan gerçek kişi, özellikle çocuk bilgisi girmeyin.':bulutVar&&!demo?'Deneme sürümü: dersler ve ücretler örnektir. Gerçek bilgi girmeyin.':'Örnek mod: tüm kişiler ve veriler örnektir. Değişiklikler sayfa yenilenince sıfırlanır.';$('#app').innerHTML=h=='giris'&&bulut?panelim():h=='sifre'&&bulut?sifreSayfa():h=='giris'?giris():h=='kayit'?kayit():h=='panel'?panelim():D(h)?detay(D(h)):ana();if(bulut)document.querySelectorAll('#app input[type=file]:not([data-foto])').forEach(i=>{i.disabled=true;i.title='Dosya yükleme henüz açık değil'})}
 function git(h){if(location.hash=='#'+h)ciz();else location.hash=h}
 document.addEventListener('click',e=>{
 const b=e.target.closest('[data-a]');if(!b)return;const v=b.dataset.v,a=b.dataset.a;
@@ -882,9 +887,8 @@ ciz()});
 document.addEventListener('submit',e=>{
 e.preventDefault();const f=e.target,x=Object.fromEntries(new FormData(f)),t=f.dataset.f;
 for(const k in x)if(typeof x[k]=='string')x[k]=x[k].trim();
-if(t=='giris'){if(x.kullanici!=='admin'||x.sifre!=='admin')return toast('Kullanıcı adı veya şifre hatalı');rol='admin';tab=0;return git('panel')}
 if(t=='kayit'){db.basvuru.push(x);f.reset();return toast('Başvuru alındı. Admin panelinde görünür.')}
-if(t=='kurum')db.kurumlar.push(x);
+if(t=='kurum'){if(db.kurumlar.some(k=>k.ad==x.ad))return toast('Bu adla bir kurum zaten var');db.kurumlar.push(x)}
 if(t=='hoca'&&!hocaKaydet(f,x))return;
 if(t=='veli'&&!veliKaydet(f,x))return;
 if(t=='ogr'&&!ogrKaydet(f,x))return;
@@ -910,7 +914,7 @@ if(t=='teslimet'){const o=db.odevler.find(y=>y.id==x.id),file=x.dosya,eski=o.tes
 if(x.link&&!guvenli(x.link))return toast('Bağlantı https:// ile başlamalı');
 const dosya=file&&file.size?{ad:file.name,url:URL.createObjectURL(file)}:eski?.dosya||null;
 if(!x.metin&&!x.link&&!dosya)return toast('Cevap, bağlantı veya dosya ekleyin');
-o.teslim[kisi.ogrenci]={tarih:bugunStr(),metin:x.metin,link:x.link,dosya,gec:gunFark(o.son)<0,sonuc:'',puan:'',yorum:''};od.teslim=null;toast('Ödev teslim edildi');return ciz()}
+o.teslim[kisi.ogrenci]={tarih:bugunStr(),metin:x.metin,link:x.link,dosya,gec:gunFark(o.son)<0,sonuc:'',puan:'',yorum:'',v:Date.now()};od.teslim=null;toast('Ödev teslim edildi');return ciz()}
 if(t=='degerlendir'){const o=db.odevler.find(y=>y.id==x.id);Object.assign(o.teslim[x.ad],{puan:x.puan===''?'':+x.puan,sonuc:x.sonuc,yorum:x.yorum});toast('Değerlendirme kaydedildi');return ciz()}
 if(t=='kayitekle'){const id=`${sec.d}|${sec.h}`,eski=db.kayitlar[id],file=x.video;
 if(x.url&&!guvenli(x.url))return toast('Bağlantı https:// ile başlamalı');
@@ -926,10 +930,166 @@ if(t.not||t.neden){const k=t.not||t.neden;(db.yokNot[k]||(db.yokNot[k]={}))[t.no
 if(t.dersnot){db.dersNot[t.dersnot]=e.target.value;return}
 if(e.target.classList.contains('kara')){const t=e.target.dataset.t;kg[t].ara=e.target.value;$('#kliste').innerHTML=kisiListesi(t);return}if(e.target.id=='hara'){hg.ara=e.target.value;$('#hliste').innerHTML=hocaListesi();return}if(e.target.id!='ara')return;ara=e.target.value;if(!$('#liste')){location.hash='ana';return setTimeout(()=>$('#dersler').scrollIntoView(),60)}$('#liste').innerHTML=liste_();$('#dersler').scrollIntoView()});
 document.addEventListener('click',e=>{if(e.target.type=='date'){try{e.target.showPicker()}catch(_){}}});
-document.addEventListener('change',e=>{const fr=e.target.form;if(fr&&(fr.dataset.f=='ders'||fr.dataset.f=='ata')){if(fr.dataset.f=='ders'&&e.target.name=='duzey')return adayYenile(fr);if(e.target.name=='hoca'||(fr.dataset.f=='ata'&&!e.target.dataset.foto))return uygunsuzGoster(fr)}if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{D(id).foto=r.result;toast('Fotoğraf eklendi');ciz()};r.readAsDataURL(f)});
+document.addEventListener('change',e=>{const fr=e.target.form;if(fr&&(fr.dataset.f=='ders'||fr.dataset.f=='ata')){if(fr.dataset.f=='ders'&&e.target.name=='duzey')return adayYenile(fr);if(e.target.name=='hoca'||(fr.dataset.f=='ata'&&!e.target.dataset.foto))return uygunsuzGoster(fr)}if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const g=new Image();g.onload=()=>{const k=Math.min(1,900/Math.max(g.width,g.height)),c=document.createElement('canvas');c.width=g.width*k;c.height=g.height*k;const z=c.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,c.width,c.height);z.drawImage(g,0,0,c.width,c.height);D(id).foto=c.toDataURL('image/jpeg',.82);toast('Fotoğraf eklendi');ciz();degisti(300)};g.src=r.result};r.readAsDataURL(f)});
 addEventListener('keydown',e=>{if(e.key=='Escape')oynaticiKapat()});
 addEventListener('hashchange',()=>{oynaticiKapat();ciz();scrollTo(0,0)});
-ciz();
+/* Bulut: Supabase (Frankfurt). Yerel dosyada ve bağlantı yoksa örnek veriyle çalışır. */
+const SB='https://iykxfpnwvtpntnanaear.supabase.co',SBKEY='sb_publishable_GzqfefaksFDxmIMfuR3nwA_KPSUwKpY';
+const BOSHOCA='Öğretmen atanacak';
+const bulutVar=location.protocol!=='file:'||!!window.BULUT_TEST;
+let oturum=null,iz=new Map(),kirli=0,zaman=null,calisiyor=false,hesaplar=[];
+const ORNEK=JSON.stringify({db,hocaKayit,veliKayit,kisi});
+function veriKoy(x){for(const k in db)delete db[k];Object.assign(db,x.db);for(const k in hocaKayit)delete hocaKayit[k];Object.assign(hocaKayit,x.hocaKayit);for(const k in veliKayit)delete veliKayit[k];Object.assign(veliKayit,x.veliKayit);Object.assign(kisi,x.kisi)}
+/* Veritabanından gelen veya giden metinlerde HTML'e kaçabilecek karakterleri zararsızlaştırır */
+const temizM=s=>s.replace(/</g,'‹').replace(/>/g,'›').replace(/"/g,'”').replace(/'/g,'’').replace(/`/g,'‘');
+const FOTO=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
+function temiz(v){if(typeof v=='string')return FOTO.test(v)?v:temizM(v);if(Array.isArray(v))return v.map(temiz);if(v&&typeof v=='object')return Object.fromEntries(Object.entries(v).map(([k,x])=>[temizM(k),temiz(x)]));return v}
+
+async function istek(yol,{method='GET',body,prefer,token}={}){
+const h={apikey:SBKEY};const t=token===undefined?await jeton():token;if(t)h.Authorization='Bearer '+t;if(body)h['Content-Type']='application/json';if(prefer)h.Prefer=prefer;
+const r=await fetch(SB+yol,{method,headers:h,body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(12000)});
+const m=await r.text();let j=null;try{j=m?JSON.parse(m):null}catch(_){}
+if(!r.ok){const e=new Error(j?.hata||j?.msg||j?.message||j?.error_description||('Sunucu hatası '+r.status));e.kod=r.status;throw e}return j}
+const sakla=()=>{try{oturum?sessionStorage.setItem('md-oturum',JSON.stringify(oturum)):sessionStorage.removeItem('md-oturum')}catch(_){}};
+const oturumKur=j=>{oturum={at:j.access_token,rt:j.refresh_token,son:Date.now()+(j.expires_in-60)*1000,uid:j.user.id};sakla()};
+let yenileniyor=null;
+async function jeton(){if(!oturum)return null;if(Date.now()<oturum.son)return oturum.at;
+yenileniyor=yenileniyor||istek('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:{refresh_token:oturum.rt},token:null}).then(oturumKur).catch(e=>{if(e.kod>=400&&e.kod<500){oturum=null;sakla();location.reload()}throw e}).finally(()=>yenileniyor=null);
+await yenileniyor;return oturum?.at}
+async function tumu(yol){const l=[];for(let i=0;;i+=1000){const p=await istek(`/rest/v1/${yol}${yol.includes('?')?'&':'?'}limit=1000&offset=${i}`);l.push(...p);if(p.length<1000)return l}}
+
+function dersKur(r,ic){const d=temiz(r.data);return {...d,id:temizM(r.id),hoca:temizM(r.hoca||'')||BOSHOCA,_sira:r.sira,foto:FOTO.test(r.data.foto||'')?r.data.foto:undefined,hafta:+d.hafta||1,fiyat:+d.fiyat||0,kaz:d.kaz||[],duzey:d.duzey?.length?d.duzey:[DUZEY[0]],plan:(d.plan||[]).map((p,i)=>({konu:p.konu||'',kazanim:p.kazanim||'',gunluk:temizM(String(ic?.[i]||''))}))}}
+async function derslerYukle(){const l=await istek('/rest/v1/dersler?select=*&order=sira,id',{token:null});db.dersler=l.map(r=>dersKur(r))}
+
+async function veriYukle(){
+const T=['dersler?order=sira,id','ders_ic','kurumlar?order=ad','hocalar?order=ad','veliler?order=ad','ogrenciler?order=ad','ogrenci_ozel','yoklama?order=ders,hafta,ogrenci','ders_notu?order=ders,hafta','odevler?order=id','teslimler?order=odev,ogrenci','degerlendirmeler?order=odev,ogrenci','kayitlar?order=ders,hafta','riza','odemeler?order=id',oturum&&rol=='admin'?'basvuru?order=id':null];
+const [dr,ic,ku,ho,ve,og,oz,yo,dn,od_,te,de,ka,rz,om,bv]=await Promise.all(T.map(t=>t?tumu(t+(t.includes('?')?'&':'?')+'select=*'):[]));
+const icM=Object.fromEntries(ic.map(r=>[r.ders,r.gunluk]));
+return ()=>{
+db.dersler=dr.map(r=>dersKur(r,icM[r.id]));
+db.kurumlar=ku.map(r=>({...temiz(r.data),ad:temizM(r.ad)}));
+for(const k in hocaKayit)delete hocaKayit[k];db.hocalar=ho.map(r=>{const a=temizM(r.ad);hocaKayit[a]={dersler:[],duzeyler:[],gunler:[],aktif:true,...temiz(r.data)};return a});
+for(const k in veliKayit)delete veliKayit[k];db.veliler=ve.map(r=>{const a=temizM(r.ad);veliKayit[a]={iletisim:[],saat:[],aktif:true,...temiz(r.data)};return a});
+const ozM=Object.fromEntries(oz.map(r=>[r.ad,r]));
+db.ogrenciler=og.map(r=>{const z=ozM[r.ad],x=temiz(z?.data||{});return {gunler:[],...x,ad:temizM(r.ad),sinif:temizM(r.sinif),dersler:temiz(r.dersler||[]),aktif:r.aktif,veli:temizM(z?.veli||'')||'—'}});
+db.yoklama={};db.yokNot={};yo.forEach(r=>{const k=temizM(`${r.ders}|${r.hafta}|${r.ogrenci}`);if(r.durum)db.yoklama[k]=r.durum;if(r.neden||r.metin)db.yokNot[k]=temiz({neden:r.neden||'',metin:r.metin||''})});
+db.dersNot=Object.fromEntries(dn.map(r=>[temizM(`${r.ders}|${r.hafta}`),temizM(r.metin||'')]));
+db.odevler=od_.map(r=>{const x=temiz(r.data),teslim={};
+te.filter(t=>t.odev==r.id).forEach(t=>{const s=temiz(t.data),g=temiz(de.find(y=>y.odev==r.id&&y.ogrenci==t.ogrenci)?.data||{}),gecerli=(g.icin||0)==(s.v||0);teslim[temizM(t.ogrenci)]={...s,dosya:null,sonuc:gecerli?g.sonuc||'':'',puan:gecerli?g.puan??'':'',yorum:gecerli?g.yorum||'':''}});
+return {...x,bicim:x.bicim||[],son:x.son||'',id:+r.id,ders:temizM(r.ders),hedef:r.hedef?temiz(r.hedef):null,dosya:null,teslim}});
+db.kayitlar=Object.fromEntries(ka.map(r=>[temizM(`${r.ders}|${r.hafta}`),{...temiz(r.data),dosya:null}]));
+db.riza=Object.fromEntries(rz.map(r=>[temizM(r.ogrenci),temiz(r.data)]));
+db.odemeler=om.map(r=>({...temiz(r.data),tutar:+r.data.tutar||0,ok:!!r.data.ok,id:+r.id,ogr:temizM(r.ogrenci)}));
+db.basvuru=bv.map(r=>({...temiz(r.data),ad:temizM(String(r.data.ad||'')),tip:temizM(String(r.data.tip||'')),_id:r.id}));
+iz=goruntu()}}
+
+/* Bellekteki veriyi tablo satırlarına çevirir. Her tablo: anahtar -> [anahtar alanları, satır] */
+const TABLO=['kurumlar','hocalar','veliler','ogrenciler','ogrenci_ozel','dersler','ders_ic','odevler','teslimler','degerlendirmeler','yoklama','ders_notu','kayitlar','riza','odemeler','basvuru'];
+const ANAHTAR={kurumlar:['ad'],hocalar:['ad'],veliler:['ad'],ogrenciler:['ad'],ogrenci_ozel:['ad'],dersler:['id'],ders_ic:['ders'],odevler:['id'],teslimler:['odev','ogrenci'],degerlendirmeler:['odev','ogrenci'],yoklama:['ders','hafta','ogrenci'],ders_notu:['ders','hafta'],kayitlar:['ders','hafta'],riza:['ogrenci'],odemeler:['id'],basvuru:['id']};
+function satirlar(){
+const S=Object.fromEntries(TABLO.map(t=>[t,[]]));
+db.kurumlar.forEach(({ad,...data})=>S.kurumlar.push({ad,data}));
+db.hocalar.forEach(ad=>S.hocalar.push({ad,data:hocaKayit[ad]||{aktif:true}}));
+db.veliler.forEach(ad=>S.veliler.push({ad,data:veliKayit[ad]||{aktif:true}}));
+db.ogrenciler.forEach(({ad,sinif,dersler,aktif,veli,...data})=>{S.ogrenciler.push({ad,sinif:sinif||'—',dersler:dersler||[],aktif:aktif!==false});S.ogrenci_ozel.push({ad,veli:veli&&veli!='—'?veli:null,data})});
+let enson=db.dersler.reduce((a,d)=>Math.max(a,d._sira||0),0);
+db.dersler.forEach(d=>{if(d._sira==null)d._sira=++enson;const {id,hoca,_sira,plan,...x}=d;S.dersler.push({id,hoca:hoca==BOSHOCA?'':hoca,sira:_sira,data:{...x,plan:plan.map(p=>({konu:p.konu,kazanim:p.kazanim||''}))}});S.ders_ic.push({ders:id,gunluk:plan.map(p=>p.gunluk||'')})});
+db.odevler.forEach(({id,ders,hedef,teslim,dosya,...data})=>{S.odevler.push({id,ders,hedef:hedef||null,data});
+Object.entries(teslim).forEach(([ogrenci,t])=>{S.teslimler.push({odev:id,ogrenci,data:{tarih:t.tarih,metin:t.metin||'',link:t.link||'',gec:!!t.gec,v:t.v||0}});if(t.sonuc||t.yorum||(t.puan!==''&&t.puan!=null))S.degerlendirmeler.push({odev:id,ogrenci,data:{sonuc:t.sonuc||'',puan:t.puan??'',yorum:t.yorum||'',icin:t.v||0}})})});
+new Set([...Object.keys(db.yoklama),...Object.keys(db.yokNot)]).forEach(k=>{const [ders,hafta,ogrenci]=k.split('|'),n=db.yokNot[k]||{};S.yoklama.push({ders,hafta:+hafta,ogrenci,durum:db.yoklama[k]||null,neden:n.neden||null,metin:n.metin||null})});
+Object.entries(db.dersNot).forEach(([k,metin])=>{const [ders,hafta]=k.split('|');S.ders_notu.push({ders,hafta:+hafta,metin})});
+Object.entries(db.kayitlar).forEach(([k,{dosya,...data}])=>{const [ders,hafta]=k.split('|');S.kayitlar.push({ders,hafta:+hafta,data})});
+Object.entries(db.riza).forEach(([ogrenci,data])=>S.riza.push({ogrenci,data}));
+db.odemeler.forEach((p,i)=>{if(!p.id)p.id=Date.now()+i;const {id,ogr,...data}=p;S.odemeler.push({id,ogrenci:ogr,data})});
+db.basvuru.forEach(b=>{if(b._id)S.basvuru.push({id:b._id})});
+return S}
+function goruntu(){const S=satirlar();return new Map(TABLO.map(t=>[t,new Map(S[t].map(r=>{const x=temiz(r);return [JSON.stringify(ANAHTAR[t].map(a=>x[a])),JSON.stringify(x)]}))]))}
+/* Rolün yazabildiği tablolar: e=ekle, g=güncelle, s=sil (sunucudaki kurallar ayrıca denetler) */
+const YETKI={admin:{kurumlar:'egs',hocalar:'egs',veliler:'egs',ogrenciler:'egs',ogrenci_ozel:'egs',dersler:'egs',ders_ic:'egs',odevler:'egs',teslimler:'egs',degerlendirmeler:'egs',yoklama:'egs',ders_notu:'egs',kayitlar:'egs',riza:'s',odemeler:'egs',basvuru:'s'},
+kurum:{hocalar:'egs',veliler:'egs',ogrenciler:'egs',ogrenci_ozel:'egs',dersler:'eg',ders_ic:'egs',teslimler:'s',degerlendirmeler:'s',riza:'s'},
+ogretmen:{dersler:'g',ders_ic:'eg',odevler:'egs',teslimler:'s',degerlendirmeler:'egs',yoklama:'egs',ders_notu:'egs',kayitlar:'egs'},
+ogrenci:{teslimler:'eg'},veli:{riza:'eg'}};
+const filtre=(t,k)=>ANAHTAR[t].map((a,i)=>`${a}=eq.${encodeURIComponent(k[i])}`).join('&');
+const KISITABLO={kurumlar:'kurum',hocalar:'ogretmen',veliler:'veli',ogrenciler:'ogrenci'};
+async function esitle(){
+if(!bulut)return;if(calisiyor){zaman=setTimeout(esitle,500);return}
+calisiyor=true;zaman=null;const surum=kirli;
+try{
+const simdiki=goruntu(),y=YETKI[rol]||{};
+for(const t of [...TABLO].reverse()){if(!y[t]?.includes('s'))continue;
+for(const [k] of [...iz.get(t)]){if(simdiki.get(t).has(k))continue;
+await istek(`/rest/v1/${t}?${filtre(t,JSON.parse(k))}`,{method:'DELETE'});iz.get(t).delete(k);
+if(KISITABLO[t])await istek('/functions/v1/hesap',{method:'POST',body:{islem:'sil',rol:KISITABLO[t],ad:JSON.parse(k)[0]}}).catch(()=>toast('Giriş hesabı kaldırılamadı'))}}
+for(const t of TABLO){if(!y[t])continue;
+for(const [k,j] of simdiki.get(t)){const eski=iz.get(t).get(k);if(eski===j)continue;const r=JSON.parse(j);
+let tamam=false;
+if(eski!==undefined&&y[t].includes('g')){const s=await istek(`/rest/v1/${t}?${filtre(t,JSON.parse(k))}`,{method:'PATCH',body:r,prefer:'return=representation'});tamam=s.length>0}
+if(!tamam){if(!y[t].includes('e'))throw new Error('Bu değişiklik için yetkiniz yok');await istek(`/rest/v1/${t}`,{method:'POST',body:r,prefer:eski===undefined&&t=='dersler'?'return=minimal':'resolution=merge-duplicates,return=minimal'})}
+iz.get(t).set(k,j)}}
+durumYaz('Kaydedildi')}
+catch(e){durumYaz('Kaydedilemedi');toast('Kaydedilemedi: '+e.message);calisiyor=false;await tazele(true);return}
+calisiyor=false;if(surum!==kirli)planla(100)}
+function planla(ms=600){if(!bulut)return;clearTimeout(zaman);zaman=setTimeout(esitle,ms)}
+function degisti(ms){if(!bulut)return;const s=goruntu();if(TABLO.some(t=>YETKI[rol]?.[t]&&(s.get(t).size!==iz.get(t).size||[...s.get(t)].some(([k,j])=>iz.get(t).get(k)!==j)))){kirli++;durumYaz('Kaydediliyor…');planla(ms)}}
+async function tazele(zorla){const s=kirli;try{const uygula=await veriYukle();if(!zorla&&(s!==kirli||zaman||calisiyor))return;uygula();kisiAyarla();const y=scrollY;ciz();scrollTo(0,y)}catch(e){toast('Veriler alınamadı: '+e.message)}}
+function durumYaz(m){let d=$('#kayitdurum');if(!d){d=document.createElement('div');d.id='kayitdurum';d.setAttribute('role','status');document.body.appendChild(d)}d.textContent=m;d.hidden=false;clearTimeout(durumYaz.t);if(m=='Kaydedildi')durumYaz.t=setTimeout(()=>d.hidden=true,1800)}
+
+function kisiAyarla(){if(rol=='veli'){const c=db.ogrenciler.map(o=>o.ad);if(!c.includes(kisi.ogrenci))kisi.ogrenci=c[0]||''}}
+async function hesapListesi(){if(bulut&&(rol=='admin'||rol=='kurum'))hesaplar=temiz(await tumu('profiles?select=rol,ad,eposta&order=rol,ad'))}
+async function oturumAc(){
+const p=(await istek(`/rest/v1/profiles?select=rol,ad&user_id=eq.${oturum.uid}`))[0];
+if(!p||!roller[p.rol])throw new Error('Hesabınıza henüz rol tanımlanmamış');
+rol=p.rol;kisi[rol]=temizM(p.ad);if(rol=='ogrenci'||rol=='veli')kisi.ogrenci=rol=='ogrenci'?kisi.ogrenci:'';
+(await veriYukle())();
+const kayitli={ogretmen:()=>db.hocalar.includes(kisi.ogretmen)&&hk_(kisi.ogretmen).aktif,veli:()=>db.veliler.includes(kisi.veli)&&vk(kisi.veli).aktif,ogrenci:()=>ob(kisi.ogrenci)?.aktif}[rol];
+if(kayitli&&!kayitli()){rol=null;throw new Error('Hesabınız pasif veya kaydınız bulunamadı')}
+bulut=true;tab=0;sec={d:db.dersler[0]?.id||'',h:1};kisiAyarla();await hesapListesi()}
+function cikisYap(){const t=oturum?.at;if(t)istek('/auth/v1/logout?scope=local',{method:'POST',token:t}).catch(()=>{});oturum=null;sakla();bulut=false;history.replaceState(null,'','#ana');location.reload()}
+
+function hesapBlok(){if(!bulut)return '';
+const var_=(r,a)=>hesaplar.some(h=>h.rol==r&&h.ad==a);
+const grup=[['ogretmen','Öğretmen',db.hocalar],['veli','Veli',db.veliler],['ogrenci','Öğrenci',db.ogrenciler.map(o=>o.ad)]];if(rol=='admin')grup.push(['kurum','Kurum',db.kurumlar.map(k=>k.ad)]);
+const sec_=grup.map(([r,b,l])=>{const k=l.filter(a=>!var_(r,a));return k.length?`<optgroup label="${b}">${k.map(a=>`<option value="${E(r+'|'+a)}">${E(a)} (${b.toLocaleLowerCase('tr')})</option>`).join('')}</optgroup>`:''}).join('');
+return blok('lock','Giriş hesapları',(sec_?`<form class="card" data-f="hesap"><div><label>Kişi<select name="kisi" required><option value="">Seçin</option>${sec_}</select></label></div>${alan('eposta','E-posta','email','autocomplete="off"')}${alan('sifre','Geçici şifre (en az 8 karakter)','password','minlength="8" autocomplete="new-password"')}<div><button class="btn">Hesap aç</button></div></form>`:'<p class="mut">Hesabı olmayan kayıtlı kişi yok. Önce kişiyi ekleyin.</p>')+tablo(['Ad','Rol','E-posta',''],hesaplar.map(h=>[E(h.ad),roller[h.rol]||'',E(h.eposta||''),h.rol=='admin'||(rol=='kurum'&&h.rol=='kurum')?'':`<button class="btn s" data-a="hesapsil" data-v="${E(h.rol+'|'+h.ad)}">Hesabı kaldır</button>`])))}
+function sifreSayfa(){return `<h1>Şifremi değiştir</h1><form class="card" data-f="sifre">${alan('yeni','Yeni şifre (en az 8 karakter)','password','minlength="8" autocomplete="new-password"')}${alan('tekrar','Yeni şifre (tekrar)','password','minlength="8" autocomplete="new-password"')}<div><button class="btn">Şifreyi değiştir</button></div></form>`}
+
+/* Olaylar: bulut işlemleri uygulamanın kendi dinleyicilerinden önce yakalanır */
+document.addEventListener('submit',async e=>{
+const f=e.target,t=f.dataset.f;
+if(bulut&&!['oturum','hesap','sifre'].includes(t))f.querySelectorAll('input:not([type]),input[type=text],textarea').forEach(i=>{i.value=temizM(i.value);if(i.name=='ad')i.value=i.value.replace(/\|/g,'/')});
+if(!['oturum','hesap','sifre'].includes(t)&&!(t=='kayit'&&bulutVar&&!demo))return;
+e.preventDefault();e.stopImmediatePropagation();const x=Object.fromEntries(new FormData(f)),btn=f.querySelector('button');if(btn.disabled)return;btn.disabled=true;
+try{
+if(t=='oturum'){if(!bulutVar)throw new Error('Bu önizlemede bulut bağlantısı kapalı. Yayındaki siteden giriş yapın.');
+oturumKur(await istek('/auth/v1/token?grant_type=password',{method:'POST',body:{email:x.eposta.trim(),password:x.sifre},token:null}).catch(er=>{throw new Error(er.kod==400?'E-posta veya şifre hatalı':er.message)}));
+try{if(demo){veriKoy(JSON.parse(ORNEK));demo=false}await oturumAc()}catch(er){oturum=null;sakla();rol=null;throw er}git('panel')}
+if(t=='kayit'){await istek('/rest/v1/basvuru',{method:'POST',body:{data:temiz({tip:x.tip,ad:x.ad.trim()})},prefer:'return=minimal',token:null});f.reset();toast('Başvuru alındı')}
+if(t=='hesap'){const [r,ad]=x.kisi.split('|');await istek('/functions/v1/hesap',{method:'POST',body:{islem:'ac',rol:r,ad,eposta:x.eposta.trim(),sifre:x.sifre}});await hesapListesi();ciz();toast('Hesap açıldı')}
+if(t=='sifre'){if(x.yeni!==x.tekrar)throw new Error('Şifreler aynı değil');await istek('/auth/v1/user',{method:'PUT',body:{password:x.yeni}});f.reset();toast('Şifreniz değiştirildi')}
+}catch(er){toast(er.message=='Failed to fetch'?'Sunucuya ulaşılamadı':er.message)}finally{btn.disabled=false}},true);
+let silOnay='';
+document.addEventListener('click',async e=>{
+const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,v=b.dataset.v,dur=()=>{e.preventDefault();e.stopImmediatePropagation()};
+if(a=='gir'){if(bulut)return dur();if(!demo){veriKoy(JSON.parse(ORNEK));demo=true}return}
+if(a=='cikis'){if(bulut){dur();if(zaman)await esitle();return cikisYap()}if(demo&&bulutVar){dur();history.replaceState(null,'','#ana');location.reload()}return}
+if(a=='cocuk'){dur();kisi.ogrenci=v;sec={d:'',h:1};return ciz()}
+if(a=='hesapsil'){dur();if(silOnay!=v){silOnay=v;b.textContent='Emin misiniz?';return}silOnay='';const [r,ad]=v.split('|');try{await istek('/functions/v1/hesap',{method:'POST',body:{islem:'sil',rol:r,ad}});await hesapListesi();ciz();toast('Hesap kaldırıldı')}catch(er){toast(er.message)}return}
+if(a=='basvur'&&bulutVar&&!demo&&rol){dur();try{await istek('/rest/v1/basvuru',{method:'POST',body:{data:temiz({ad:kisi[rol],tip:'Ders talebi: '+D(v).ad})},prefer:'return=minimal'});toast('Talebiniz iletildi')}catch(er){toast(er.message)}}
+},true);
+document.addEventListener('click',e=>{if(!bulut)return;if(e.target.closest('[data-a]'))degisti(600);if(e.target.closest('.tabs [data-a=tab]')&&!zaman&&!calisiyor)tazele(false)});
+document.addEventListener('submit',()=>degisti(300));
+document.addEventListener('input',()=>degisti(1500));
+document.addEventListener('change',()=>degisti(600));
+addEventListener('beforeunload',e=>{if(bulut&&(zaman||calisiyor))e.preventDefault()});
+
+async function baslat(){
+if(!bulutVar)return ciz();
+$('#app').innerHTML='<p class="mut" style="padding:40px 0;text-align:center">Yükleniyor…</p>';
+try{await derslerYukle()}catch(_){veriKoy(JSON.parse(ORNEK));toast('Sunucuya ulaşılamadı; örnek veri gösteriliyor');return ciz()}
+try{oturum=JSON.parse(sessionStorage.getItem('md-oturum'))}catch(_){}
+if(oturum)try{await oturumAc()}catch(e){oturum=null;sakla();rol=null;toast(e.message)}
+ciz()}
+baslat();
 </script>
 </body>
 </html>
