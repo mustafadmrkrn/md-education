@@ -222,6 +222,8 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 .aday .kim{font-size:14px;color:var(--ink);text-align:left}.aday .kim .mut{font-size:12px}
 .aday dl{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin:10px 0 0;font-size:12px}.aday dt{color:var(--mut)}.aday dd{margin:0;overflow-wrap:anywhere}.uyari-metin{display:block;margin-top:8px;color:#9a4d00}.uygunsuz{margin-top:10px;background:#fff4e8;padding:10px 12px;border-radius:12px}.uygunsuz[hidden]{display:none}
 #kayitdurum{position:fixed;left:16px;bottom:16px;z-index:60;background:#1c1d1f;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px}
+.blok .tw+p.mut{font-size:13px}
+td select[data-kurumsec]{min-width:180px}
 </style>
 </head>
 <body>
@@ -238,7 +240,7 @@ let nid=1,bulut=false,demo=false;
 function ders(ad,kat,hafta,hoca,fiyat,kaz,konu){return{id:bulut?'d'+Date.now():'d'+nid++,ad,kat,hafta,hoca,fiyat,kaz,plan:Array.from({length:hafta},(_,i)=>({konu:konu[i]||(i==hafta-1?'Final projesi ve değerlendirme':'Uygulama ve tekrar '+(i+1)),gunluk:'',kayit:i<3}))}}
 const db={
 hocalar:['Elif Yıldız','Mert Kaya','Zeynep Arslan','Can Demir'],
-kurumlar:[{ad:'Örnek Kurum A',sehir:'İstanbul'}],
+kurumlar:[{ad:'Örnek Kurum A',sehir:'İstanbul'},{ad:'Örnek Kurum B',sehir:'Ankara'}],
 dersler:[
 ders('Minecraft Education Edition','Kodlama',8,'Mert Kaya',3200,['Blok kodlama ile dünya tasarlar','Takım halinde problem çözer','Basit algoritmalar kurar'],['Dünyaya giriş','Agent ile hareket','Döngüler','Koşullar']),
 ders('YouTube ve Sosyal Medya','Medya',8,'Zeynep Arslan',2800,['Güvenli ve etik paylaşım yapar','Video senaryosu yazar','Temel kurgu yapar'],['Dijital güvenlik','İçerik fikri','Senaryo','Çekim teknikleri']),
@@ -331,6 +333,7 @@ const roller={admin:'Admin',kurum:'Kurum',ogretmen:'Öğretmen',ogrenci:'Öğren
 const kisi={admin:'Sistem Yöneticisi',kurum:'Örnek Kurum A',ogretmen:'Mert Kaya',ogrenci:'Ada Y.',veli:'Selin Y.'};
 const DUZEY=['Anaokul','İlkokul','Ortaokul','Lise','Üniversite','Mezun','Eğitmen Eğitimi'];
 [[1,2],[2,3],[2],[3],[1,2],[1,2,3],[3,4,5],[2,3]].forEach((l,i)=>db.dersler[i].duzey=l.map(n=>DUZEY[n]));
+db.dersler.forEach((d,i)=>d.kurum=i<4?'Örnek Kurum A':'Örnek Kurum B');
 const dz=d=>(d.duzey||[]).join(', ');
 const simdi=d=>d.bas?Math.max(0,Math.min(d.hafta,Math.floor((new Date().setHours(12,0,0,0)-new Date(d.bas+'T12:00'))/6048e5)+1)):Math.min(bulut?1:SIMDI,d.hafta);
 const haftaSayisi=(a,b)=>{const g=Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5);return g>=0?Math.floor(g/7)+1:0};
@@ -666,14 +669,32 @@ function adayYenile(f){const kutu=f.querySelector('.adaylar'),secili=f.querySele
 kutu.innerHTML=adaylar([...f.querySelectorAll('input[name=duzey]:checked')].map(i=>i.value),null,secili);uygunsuzGoster(f)}
 const atayanNotu=d=>d.atama?`<small class="mut">Atayan: ${E(d.atama.kim)} · ${tarih(d.atama.tarih)}</small>`:'';
 function dersT(){
-const yeni=blok('circle-plus','Yeni ders',form('ders',alan('ad','Ders adı')+duzeyAlani()+alan('bas','Başlangıç tarihi','date')+alan('bit','Bitiş tarihi','date')+'<div class="tum sure-bilgi" aria-live="polite">Başlangıç ve bitiş tarihini seçin; hafta sayısı otomatik hesaplanır.</div>'+alan('fiyat','Ücret (TL)','number','min="0"')+`<fieldset class="tum"><legend>Öğretmen ata</legend><p class="mut">Yukarıda düzey seçince uygunluk hesaplanır. Branş uygunluğunu bölüm ve derslerden kontrol edin.</p><div class="adaylar">${adaylar([],null)}</div>${onayKutusu}</fieldset>`+haftaAlanlari(),'Ders ekle'));
+const yeni=blok('circle-plus','Yeni ders',form('ders',alan('ad','Ders adı')+(rol=='admin'?secim('kurum','Kurum',[['','Belirtilmedi'],...db.kurumlar.map(k=>[k.ad,k.ad])]):'')+duzeyAlani()+alan('bas','Başlangıç tarihi','date')+alan('bit','Bitiş tarihi','date')+'<div class="tum sure-bilgi" aria-live="polite">Başlangıç ve bitiş tarihini seçin; hafta sayısı otomatik hesaplanır.</div>'+alan('fiyat','Ücret (TL)','number','min="0"')+`<fieldset class="tum"><legend>Öğretmen ata</legend><p class="mut">Yukarıda düzey seçince uygunluk hesaplanır. Branş uygunluğunu bölüm ve derslerden kontrol edin.</p><div class="adaylar">${adaylar([],null)}</div>${onayKutusu}</fieldset>`+haftaAlanlari(),'Ders ekle'));
 const atanan=ata&&D(ata);
 const panelAta=atanan?blok('user-plus',`Öğretmen ata: ${E(atanan.ad)}`,`<form class="hform" data-f="ata"><input type="hidden" name="id" value="${atanan.id}"><p class="mut">Ders düzeyi: ${E(atanan.duzey.join(', '))} · Şu anki öğretmen: ${E(atanan.hoca)}</p><div class="adaylar">${adaylar(atanan.duzey,atanan.id,atanan.hoca)}</div>${onayKutusu}<div class="eylem sol"><button class="btn">${I('check',15)} Atamayı kaydet</button><button type="button" class="btn s" data-a="atac" data-v="">Vazgeç</button></div></form>`):'';
-return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div>${kim(d.hoca)}${d.hoca==BOSHOCA?'':`<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>`}${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
+return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div><div class="mut">${I('building-2',13)} ${E(d.kurum||'Kurum belirtilmedi')}</div>${kim(d.hoca)}${d.hoca==BOSHOCA?'':`<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>`}${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
+
+function kurumOzet(){
+const v=analizVeri(),adlar=db.kurumlar.map(k=>k.ad);
+const hesap=l=>{const idler=l.map(x=>x.d.id),ogr=v.aktif.filter(o=>o.dersler.some(i=>idler.includes(i))),[a,b]=v.katildi(v.yok.filter(y=>idler.includes(y.d))),g=l.reduce((t,x)=>t+x.gelen,0),bk=l.reduce((t,x)=>t+x.beklenen,0);
+return {ders:l.length,hoca:new Set(l.map(x=>x.d.hoca).filter(h=>db.hocalar.includes(h))).size,ogr:ogr.length,veli:new Set(ogr.map(o=>o.veli).filter(x=>db.veliler.includes(x))).size,kayit:l.reduce((t,x)=>t+x.n,0),a,b,g,bk}};
+const satir=db.kurumlar.map(k=>({ad:k.ad,sehir:k.sehir,...hesap(v.dersler.filter(x=>x.d.kurum==k.ad))}));
+const bagsiz=v.dersler.filter(x=>!adlar.includes(x.d.kurum)),tum=hesap(v.dersler.filter(x=>adlar.includes(x.d.kurum)));
+const oran_=(a,b)=>b?`%${yuzde(a,b)} <small class="mut">${a}/${b}</small>`:'—';
+const hucre=(ad,x)=>[ad,x.ders,x.hoca,x.ogr,x.veli,x.kayit,oran_(x.a,x.b),oran_(x.g,x.bk)];
+const basliklar=['Kurum','Ders','Öğretmen','Öğrenci','Veli','Ders kaydı','Devam','Ödev teslimi'];
+const rows=satir.map(x=>hucre(`<b>${E(x.ad)}</b><div class="mut">${E(x.sehir||'')}</div>`,x));
+if(bagsiz.length)rows.push(hucre('<span class="mut">Kurumu belirtilmemiş</span>',hesap(bagsiz)));
+if(db.kurumlar.length>1)rows.push(hucre('<b>Tüm kurumlar</b>',tum).map(x=>`<b>${x}</b>`));
+const olculu=(al,pay,payda,birim)=>{const l=satir.filter(x=>x[payda]);return l.length?l.map(x=>olcer(x.ad,x[pay],x[payda],birim)).join(''):bos(al)};
+if(!db.kurumlar.length)return blok('chart-column','Kurum özet',bos('Henüz kurum yok. Aşağıdan ilk kurumu açın.'));
+return blok('chart-column','Kurum özet',kutular([['building-2','Kurum',db.kurumlar.length,'#059669'],['book-open','Kuruma bağlı ders',tum.ders,'#0891b2'],['graduation-cap','Ders veren öğretmen',tum.hoca,'#ea580c'],['backpack','Öğrenci',tum.ogr,'#4f46e5']])+tablo(basliklar,rows)+'<p class="mut">Sayılar derslerin bağlı olduğu kuruma göre hesaplanır. İki kurumdan ders alan öğrenci her ikisinde sayılır; toplamda bir kez sayılır.</p>')
++`<div class="gizgara">${gkart('backpack','Kurumlara göre öğrenci','Aktif öğrenci sayısı',yatay(satir.map(x=>[x.ad,x.ogr]),'öğrenci'))}${gkart('book-open','Kurumlara göre ders','Kuruma bağlı ders sayısı',yatay(satir.map(x=>[x.ad,x.ders]),'ders'))}${gkart('activity','Derse devam oranı','Mazeretliler hariç',olculu('Henüz yoklama alınmadı.','a','b','katılım'))}${gkart('notebook-pen','Ödev teslim oranı','Beklenen teslimlere göre',olculu('Henüz ödev verilmedi.','g','bk','teslim'))}</div>`}
+const kurumDers=()=>blok('link','Ders – kurum bağlantısı',tablo(['Ders','Öğretmen','Kurum'],db.dersler.map(d=>[E(d.ad),E(d.hoca),`<select data-kurumsec="${E(d.id)}" aria-label="${E(d.ad)} dersinin kurumu"><option value="">Belirtilmedi</option>${db.kurumlar.map(k=>`<option ${d.kurum==k.ad?'selected':''}>${E(k.ad)}</option>`).join('')}</select>`])));
 
 const panel={
 admin:[ozet,
-()=>blok('circle-plus','Yeni kurum',form('kurum',alan('ad','Kurum adı')+alan('sehir','Şehir'),'Kurum aç'))+blok('building-2','Kurumlar',`<div class="kisiler">${db.kurumlar.map(k=>`<div class="kisi"><span class="buyuk" style="background:${rk(k.ad)}">${I('school',30)}</span><b>${E(k.ad)}</b><small>${I('map-pin',14)} ${E(k.sehir)}</small></div>`).join('')}</div>`),
+()=>kurumOzet()+blok('circle-plus','Yeni kurum',form('kurum',alan('ad','Kurum adı')+alan('sehir','Şehir'),'Kurum aç'))+blok('building-2','Kurumlar',`<div class="kisiler">${db.kurumlar.map(k=>`<div class="kisi"><span class="buyuk" style="background:${rk(k.ad)}">${I('school',30)}</span><b>${E(k.ad)}</b><small>${I('map-pin',14)} ${E(k.sehir)}</small></div>`).join('')}</div>`)+kurumDers(),
 hocaT,
 dersT,
 ()=>kisiT('veli'),()=>kisiT('ogr'),
@@ -897,7 +918,7 @@ if(!duzey.length)return toast('En az bir düzey seçin');
 if(!x.hoca)return toast('Bir öğretmen seçin');
 if(uygunluk(x.hoca,duzey,null).s!='uygun'&&!x.onayla)return toast('Uygunluk uyarısını onaylayın veya başka öğretmen seçin');
 if(!(n>=1&&n<=52))return toast('Geçerli bir başlangıç ve bitiş tarihi seçin');
-const y=ders(x.ad,'',n,x.hoca,+x.fiyat,[],[]);Object.assign(y,{duzey,bas:x.bas,bit:x.bit,yeni:true,atama:{kim:roller[rol]+': '+kisi[rol],tarih:bugunStr()}});y.plan.forEach((p,i)=>{p.konu=x['k'+(i+1)]||p.konu;p.kazanim=x['z'+(i+1)]||''});const g=(x.genel||'').split('\n').map(v=>v.trim()).filter(Boolean);y.kaz=g.length?g:y.plan.map(p=>p.kazanim).filter(Boolean).slice(0,4);db.dersler.push(y);if(uygunluk(x.hoca,duzey,null).s=='uygun'){const k=hk_(x.hoca);hocaKayit[x.hoca]={...k,dersler:[...(k.dersler||[]),y.id]}}}
+const y=ders(x.ad,'',n,x.hoca,+x.fiyat,[],[]);Object.assign(y,{kurum:rol=='kurum'?kisi.kurum:x.kurum||'',duzey,bas:x.bas,bit:x.bit,yeni:true,atama:{kim:roller[rol]+': '+kisi[rol],tarih:bugunStr()}});y.plan.forEach((p,i)=>{p.konu=x['k'+(i+1)]||p.konu;p.kazanim=x['z'+(i+1)]||''});const g=(x.genel||'').split('\n').map(v=>v.trim()).filter(Boolean);y.kaz=g.length?g:y.plan.map(p=>p.kazanim).filter(Boolean).slice(0,4);db.dersler.push(y);if(uygunluk(x.hoca,duzey,null).s=='uygun'){const k=hk_(x.hoca);hocaKayit[x.hoca]={...k,dersler:[...(k.dersler||[]),y.id]}}}
 if(t=='ata'){const d=D(x.id);if(!x.hoca)return toast('Bir öğretmen seçin');
 if(uygunluk(x.hoca,d.duzey,d.id).s!='uygun'&&!x.onayla)return toast('Uygunluk uyarısını onaylayın veya başka öğretmen seçin');
 d.hoca=x.hoca;d.atama={kim:roller[rol]+': '+kisi[rol],tarih:bugunStr()};ata=null;toast('Öğretmen atandı');return ciz()}
@@ -930,7 +951,7 @@ if(t.not||t.neden){const k=t.not||t.neden;(db.yokNot[k]||(db.yokNot[k]={}))[t.no
 if(t.dersnot){db.dersNot[t.dersnot]=e.target.value;return}
 if(e.target.classList.contains('kara')){const t=e.target.dataset.t;kg[t].ara=e.target.value;$('#kliste').innerHTML=kisiListesi(t);return}if(e.target.id=='hara'){hg.ara=e.target.value;$('#hliste').innerHTML=hocaListesi();return}if(e.target.id!='ara')return;ara=e.target.value;if(!$('#liste')){location.hash='ana';return setTimeout(()=>$('#dersler').scrollIntoView(),60)}$('#liste').innerHTML=liste_();$('#dersler').scrollIntoView()});
 document.addEventListener('click',e=>{if(e.target.type=='date'){try{e.target.showPicker()}catch(_){}}});
-document.addEventListener('change',e=>{const fr=e.target.form;if(fr&&(fr.dataset.f=='ders'||fr.dataset.f=='ata')){if(fr.dataset.f=='ders'&&e.target.name=='duzey')return adayYenile(fr);if(e.target.name=='hoca'||(fr.dataset.f=='ata'&&!e.target.dataset.foto))return uygunsuzGoster(fr)}if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const g=new Image();g.onload=()=>{const k=Math.min(1,900/Math.max(g.width,g.height)),c=document.createElement('canvas');c.width=g.width*k;c.height=g.height*k;const z=c.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,c.width,c.height);z.drawImage(g,0,0,c.width,c.height);D(id).foto=c.toDataURL('image/jpeg',.82);toast('Fotoğraf eklendi');ciz();degisti(300)};g.src=r.result};r.readAsDataURL(f)});
+document.addEventListener('change',e=>{const ks=e.target.dataset?.kurumsec;if(ks){D(ks).kurum=e.target.value;toast('Dersin kurumu güncellendi');const y=scrollY;ciz();return scrollTo(0,y)}const fr=e.target.form;if(fr&&(fr.dataset.f=='ders'||fr.dataset.f=='ata')){if(fr.dataset.f=='ders'&&e.target.name=='duzey')return adayYenile(fr);if(e.target.name=='hoca'||(fr.dataset.f=='ata'&&!e.target.dataset.foto))return uygunsuzGoster(fr)}if(fr&&fr.dataset.f=='ders'&&(e.target.name=='bas'||e.target.name=='bit')){tarihDegisti(fr);return}const id=e.target.dataset.foto,f=id&&e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const g=new Image();g.onload=()=>{const k=Math.min(1,900/Math.max(g.width,g.height)),c=document.createElement('canvas');c.width=g.width*k;c.height=g.height*k;const z=c.getContext('2d');z.fillStyle='#fff';z.fillRect(0,0,c.width,c.height);z.drawImage(g,0,0,c.width,c.height);D(id).foto=c.toDataURL('image/jpeg',.82);toast('Fotoğraf eklendi');ciz();degisti(300)};g.src=r.result};r.readAsDataURL(f)});
 addEventListener('keydown',e=>{if(e.key=='Escape')oynaticiKapat()});
 addEventListener('hashchange',()=>{oynaticiKapat();ciz();scrollTo(0,0)});
 /* Bulut: Supabase (Frankfurt). Yerel dosyada ve bağlantı yoksa örnek veriyle çalışır. */
