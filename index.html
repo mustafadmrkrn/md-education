@@ -224,6 +224,9 @@ body{-webkit-font-smoothing:antialiased;font-optical-sizing:auto}h1,h2,h3{font-w
 #kayitdurum{position:fixed;left:16px;bottom:16px;z-index:60;background:#1c1d1f;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px}
 .blok .tw+p.mut{font-size:13px}
 td select[data-kurumsec]{min-width:180px}
+.kurumtag{background:#eef0ff;color:#3730a3;display:inline-flex;align-items:center;gap:4px}
+.kurumtag.yok{background:#f1f1f4;color:#5f6368}
+.had{flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -483,7 +486,7 @@ function hocaFormu(){
 const eski=hg.form=='yeni'?null:hg.form,k=eski?hk_(eski):{dersler:[],duzeyler:[],gunler:[]};
 return `<form class="hform" data-f="hoca"><input type="hidden" name="eski" value="${E(eski||'')}">
 <p class="not">${I('shield-check',16)} ${bulut?'Bilgiler sunucuda (Frankfurt) saklanır. Hukuki onay tamamlanmadan gerçek kişi, özellikle çocuk bilgisi girmeyin.':'Örnek moddasınız, bilgiler kaydedilmez. Gerçek kişi, özellikle çocuk bilgisi girmeyin.'}</p>
-${bolumKutu(1,'user-round','Kişisel bilgiler','İletişim için kullanılır',girdi('ad','Ad soyad',eski,'text','',true)+girdi('eposta','E-posta',k.eposta,'email','',true)+girdi('telefon','Telefon',k.telefon,'tel','pattern="[0-9+ ()\\-]{10,20}" placeholder="05xx xxx xx xx"',true)+girdi('sehir','Şehir',k.sehir))}
+${bolumKutu(1,'user-round','Kişisel bilgiler','İletişim için kullanılır',girdi('ad','Ad soyad',eski,'text','',true)+girdi('eposta','E-posta',k.eposta,'email','',true)+girdi('telefon','Telefon',k.telefon,'tel','pattern="[0-9+ ()\\-]{10,20}" placeholder="05xx xxx xx xx"',true)+girdi('sehir','Şehir',k.sehir)+kurumAlani(k.kurum))}
 ${bolumKutu(2,'graduation-cap','Eğitim','Mezuniyet bilgileri',acilir('mezuniyet','Mezuniyet düzeyi',MEZUNIYET,k.mezuniyet,true)+girdi('universite','Üniversite',k.universite)+girdi('bolum','Bölüm',k.bolum)+girdi('yil','Mezuniyet yılı',k.yil,'number','min="1960" max="2035"')+`<label class="tum">Sertifikalar<textarea name="sertifika" rows="2">${E(k.sertifika||'')}</textarea></label>`)}
 ${bolumKutu(3,'book-open','Uzmanlık ve dersler','Ders henüz açılmadıysa uzmanlık alanını yazın',`<label class="tum">Uzmanlık alanları<input name="uzmanlik" value="${E(k.uzmanlik||'')}" placeholder="Örn. Python, robotik, İngilizce"></label>`+kutular_('dersler','Dersler',db.dersler.map(d=>[d.id,d.ad]),k.dersler)+kutular_('duzeyler','Çalışabileceği düzeyler',DUZEY,k.duzeyler))}
 ${bolumKutu(4,'briefcase','Çalışma bilgileri','Programlama için',girdi('deneyim','Deneyim (yıl)',k.deneyim,'number','min="0" max="60"')+acilir('calisma','Çalışma şekli',CALISMA,k.calisma)+acilir('bicim','Ders biçimi',BICIM,k.bicim)+kutular_('gunler','Uygun günler',GUNLER,k.gunler)+`<label class="tum">Kısa tanıtım<textarea name="hakkinda" rows="3">${E(k.hakkinda||'')}</textarea></label>`)}
@@ -491,11 +494,11 @@ ${bolumKutu(4,'briefcase','Çalışma bilgileri','Programlama için',girdi('dene
 <div class="eylem sol"><button class="btn big">${I('save',16)} ${eski?'Değişiklikleri kaydet':'Öğretmeni kaydet'}</button><button type="button" class="btn o big" data-a="hkapat">Vazgeç</button></div></form>`}
 function hocaListesi(){
 const q=hg.ara.toLocaleLowerCase('tr');
-const l=db.hocalar.filter(h=>{const k=hk_(h);return (hg.durum=='Tümü'||(hg.durum=='Aktif')==k.aktif)&&[h,k.eposta,k.bolum,k.uzmanlik,...k.dersler.map(i=>D(i)?.ad)].join(' ').toLocaleLowerCase('tr').includes(q)});
+const l=db.hocalar.filter(h=>{const k=hk_(h);return (hg.durum=='Tümü'||(hg.durum=='Aktif')==k.aktif)&&[h,k.eposta,k.bolum,k.uzmanlik,...kHoca(h),...k.dersler.map(i=>D(i)?.ad)].join(' ').toLocaleLowerCase('tr').includes(q)});
 if(!l.length)return bos('Aramanıza uygun öğretmen yok.');
 return l.map(h=>{const k=hk_(h),atanan=db.dersler.filter(d=>d.hoca==h),verebilir=k.dersler.map(D).filter(Boolean),acik=hg.ac==h;
 const satir=(a,v)=>`<div><small>${a}</small><b>${v?E(v):'—'}</b></div>`;
-return `<article class="hkart ${k.aktif?'':'pasif'}"><div class="hust">${avatar(h,52)}<div class="had"><b>${E(h)}</b><span class="tag ${k.aktif?'ok':'bad'}">${k.aktif?'Aktif':'Pasif'}</span>${k.eposta?'':' <span class="tag bad">Bilgiler eksik</span>'}<small>${E([k.mezuniyet,k.bolum].filter(Boolean).join(' · '))}</small></div>
+return `<article class="hkart ${k.aktif?'':'pasif'}"><div class="hust">${avatar(h,52)}<div class="had"><b>${E(h)}</b><span class="tag ${k.aktif?'ok':'bad'}">${k.aktif?'Aktif':'Pasif'}</span>${k.eposta?'':' <span class="tag bad">Bilgiler eksik</span>'}${kurumEtiket(kHoca(h))}<small>${E([k.mezuniyet,k.bolum].filter(Boolean).join(' · '))}</small></div>
 <div class="hiletisim"><span>${I('mail',14)} ${E(k.eposta||'—')}</span><span>${I('phone',14)} ${E(k.telefon||'—')}</span></div>
 <div class="eylem"><button class="btn o s" data-a="hac" data-v="${E(h)}" aria-expanded="${acik}">${I('eye',14)} ${acik?'Kapat':'Profil'}</button><button class="btn o s" data-a="hduzen" data-v="${E(h)}">${I('pencil',14)} Düzenle</button><button class="btn o s" data-a="hdurum" data-v="${E(h)}">${I('power',14)} ${k.aktif?'Pasife al':'Aktif et'}</button><button class="btn s kirmizi ${hg.sil==h?'':'o'}" data-a="hsil" data-v="${E(h)}">${I('trash-2',14)} ${hg.sil==h?'Emin misiniz?':'Sil'}</button></div></div>
 <div class="hdersler"><small>Verebileceği dersler</small> ${verebilir.map(d=>`<span class="tag">${E(d.ad)}</span>`).join(' ')||'—'}</div>
@@ -512,7 +515,7 @@ if(!dersler.length&&!x.uzmanlik){toast('Uzmanlık alanı yazın veya en az bir d
 if(!fd.getAll('duzeyler').length){toast('Çalışabileceği en az bir düzey seçin');return false}
 if(x.ad!==eski&&db.hocalar.includes(x.ad)){toast('Bu adla bir öğretmen zaten var');return false}
 const k={...(eski?hk_(eski):{aktif:true}),dersler,duzeyler:fd.getAll('duzeyler'),gunler:fd.getAll('gunler')};
-['eposta','telefon','sehir','mezuniyet','universite','bolum','yil','deneyim','calisma','bicim','sertifika','hakkinda','uzmanlik'].forEach(a=>k[a]=x[a]);
+['eposta','telefon','sehir','mezuniyet','universite','bolum','yil','deneyim','calisma','bicim','sertifika','hakkinda','uzmanlik'].forEach(a=>k[a]=x[a]);k.kurum=kurumDegeri(x,k.kurum,!eski);
 if(eski){db.hocalar[db.hocalar.indexOf(eski)]=x.ad;db.dersler.forEach(d=>{if(d.hoca==eski)d.hoca=x.ad});if(kisi.ogretmen==eski)kisi.ogretmen=x.ad;delete hocaKayit[eski]}else db.hocalar.push(x.ad);
 hocaKayit[x.ad]=k;hg.form=null;hg.ac=x.ad;return true}
 function hocaEylem(a,v){
@@ -567,7 +570,7 @@ const eski=kg.ogr.form=='yeni'?null:kg.ogr.form,o=eski?ob(eski):{dersler:[],gunl
 if(!aktifVeliler().length)return bos('Öğrenci eklemek için önce bir veli kaydedin.');
 return `<form class="hform" data-f="ogr"><input type="hidden" name="eski" value="${E(eski||'')}">${uyari()}
 ${bolumKutu(1,'user-round','Öğrenci bilgileri','Kimlik ve iletişim',girdi('ad','Ad soyad',eski,'text','',true)+girdi('dogum','Doğum tarihi',o.dogum,'date',`max="${new Date().toISOString().slice(0,10)}"`,true)+girdi('sehir','Şehir',o.sehir)+girdi('eposta','E-posta (varsa)',o.eposta,'email')+girdi('telefon','Telefon (varsa)',o.telefon,'tel'))}
-${bolumKutu(2,'school','Okul bilgileri','Düzey ve sınıf',acilir('duzey','Düzey',DUZEY,o.duzey,true)+girdi('sinif','Sınıf',o.sinif=='—'?'':o.sinif)+girdi('okul','Okul adı',o.okul))}
+${bolumKutu(2,'school','Okul bilgileri','Düzey ve sınıf',acilir('duzey','Düzey',DUZEY,o.duzey,true)+girdi('sinif','Sınıf',o.sinif=='—'?'':o.sinif)+girdi('okul','Okul adı',o.okul)+kurumAlani(o.kurum))}
 ${bolumKutu(3,'users','Veli bağlantısı','Öğrencinin bağlı olduğu veli',acilir('veli','Veli',aktifVeliler(),o.veli,true))}
 ${bolumKutu(4,'book-open','Dersler','En az bir ders seçin',kutular_('dersler','Kayıt olacağı dersler',db.dersler.map(d=>[d.id,d.ad]),o.dersler))}
 ${bolumKutu(5,'target','Öğrenme bilgileri','Öğretmenin planlaması için',acilir('seviye','Başlangıç seviyesi',SEVIYE,o.seviye)+acilir('cihaz','Kullandığı cihaz',CIHAZ,o.cihaz)+kutular_('gunler','Uygun günler',GUNLER,o.gunler)+`<label class="tum">Hedefi ve ilgi alanları<textarea name="hedef" rows="2">${E(o.hedef||'')}</textarea></label><label class="tum">Eğitim notu (sağlık bilgisi yazmayın)<textarea name="not" rows="2">${E(o.not||'')}</textarea></label>`)}
@@ -577,7 +580,7 @@ function veliFormu(){
 const eski=kg.veli.form=='yeni'?null:kg.veli.form,k=eski?vk(eski):{iletisim:[],saat:[]};
 const bagli=db.ogrenciler.filter(o=>eski&&o.veli==eski).map(o=>o.ad);
 return `<form class="hform" data-f="veli"><input type="hidden" name="eski" value="${E(eski||'')}">${uyari()}
-${bolumKutu(1,'user-round','Veli bilgileri','Kimlik ve yakınlık',girdi('ad','Ad soyad',eski,'text','',true)+acilir('yakinlik','Yakınlık',YAKINLIK,k.yakinlik,true)+girdi('sehir','Şehir',k.sehir))}
+${bolumKutu(1,'user-round','Veli bilgileri','Kimlik ve yakınlık',girdi('ad','Ad soyad',eski,'text','',true)+acilir('yakinlik','Yakınlık',YAKINLIK,k.yakinlik,true)+girdi('sehir','Şehir',k.sehir)+kurumAlani(k.kurum))}
 ${bolumKutu(2,'phone','İletişim','Bilgilendirme için',girdi('eposta','E-posta',k.eposta,'email','',true)+girdi('telefon','Telefon',k.telefon,'tel','pattern="[0-9+ ()\\-]{10,20}" placeholder="05xx xxx xx xx"',true)+girdi('telefon2','İkinci telefon',k.telefon2,'tel')+kutular_('iletisim','Tercih ettiği iletişim yolu',ILETISIM,k.iletisim)+kutular_('saat','Aranabileceği zaman',SAATLER,k.saat))}
 ${bolumKutu(3,'backpack','Öğrencileri','Bu veliye bağlanacak öğrenciler',db.ogrenciler.length?kutular_('cocuklar','Öğrenciler',db.ogrenciler.map(o=>[o.ad,o.ad+(o.veli&&o.veli!='—'&&o.veli!=eski?` (şu an: ${o.veli})`:'')]),bagli):'<p class="mut">Henüz öğrenci yok.</p>')}
 ${bolumKutu(4,'wallet','Ödeme ve not','Ödeme tercihi',acilir('plan','Ödeme planı',PLAN,k.plan)+`<label class="tum">Not<textarea name="not" rows="2">${E(k.not||'')}</textarea></label>`)}
@@ -588,17 +591,17 @@ const satirB=(a,v)=>`<div><small>${a}</small><b>${v?E(v):'—'}</b></div>`;
 function kart_(t,ad,aktif,eksik,alt,iletisim,etiketBaslik,etiketler,profil){
 const g=kg[t],acik=g.ac==ad;
 const d=(a,ik,m,ek='btn o s')=>`<button class="${ek}" data-a="${a}" data-t="${t}" data-v="${E(ad)}">${I(ik,14)} ${m}</button>`;
-return `<article class="hkart ${aktif?'':'pasif'}"><div class="hust">${avatar(ad,52)}<div class="had"><b>${E(ad)}</b><span class="tag ${aktif?'ok':'bad'}">${aktif?'Aktif':'Pasif'}</span>${eksik?' <span class="tag bad">Bilgiler eksik</span>':''}<small>${E(alt)}</small></div>
+return `<article class="hkart ${aktif?'':'pasif'}"><div class="hust">${avatar(ad,52)}<div class="had"><b>${E(ad)}</b><span class="tag ${aktif?'ok':'bad'}">${aktif?'Aktif':'Pasif'}</span>${eksik?' <span class="tag bad">Bilgiler eksik</span>':''}${kurumEtiket(t=='ogr'?kOgr(ob(ad)):kVeli(ad))}<small>${E(alt)}</small></div>
 <div class="hiletisim">${iletisim}</div><div class="eylem">${d('kac','eye',acik?'Kapat':'Profil')}${d('kduzen','pencil','Düzenle')}${d('kdurum','power',aktif?'Pasife al':'Aktif et')}${d('ksil','trash-2',g.sil==ad?'Emin misiniz?':'Sil',`btn s kirmizi ${g.sil==ad?'':'o'}`)}</div></div>
 <div class="hdersler"><small>${etiketBaslik}</small> ${etiketler.map(x=>`<span class="tag">${E(x)}</span>`).join(' ')||'—'}</div>
 ${acik?`<div class="hprofil">${profil.map(p=>satirB(...p)).join('')}</div>`:''}</article>`}
 function kisiListesi(t){
 const g=kg[t],q=g.ara.toLocaleLowerCase('tr');
 const uygun=(aktif,metin)=>(g.durum=='Tümü'||(g.durum=='Aktif')==aktif)&&metin.join(' ').toLocaleLowerCase('tr').includes(q);
-const kartlar=t=='ogr'?db.ogrenciler.filter(o=>uygun(o.aktif!==false,[o.ad,o.veli,o.okul,o.sinif,o.duzey,...o.dersler.map(i=>D(i)?.ad)])).map(o=>{const dersler=o.dersler.map(D).filter(Boolean).map(d=>d.ad);
+const kartlar=t=='ogr'?db.ogrenciler.filter(o=>uygun(o.aktif!==false,[...kOgr(o),o.ad,o.veli,o.okul,o.sinif,o.duzey,...o.dersler.map(i=>D(i)?.ad)])).map(o=>{const dersler=o.dersler.map(D).filter(Boolean).map(d=>d.ad);
 return kart_('ogr',o.ad,o.aktif!==false,!o.dogum,[o.duzey,o.sinif,yas(o.dogum)].filter(x=>x&&x!='—').join(' · '),`<span>${I('users',14)} Veli: ${E(o.veli||'—')}</span><span>${I('school',14)} ${E(o.okul||'—')}</span>`,'Dersleri',dersler,
 [['Doğum tarihi',o.dogum?gunAdi(o.dogum):''],['Şehir',o.sehir],['E-posta',o.eposta],['Telefon',o.telefon],['Seviye',o.seviye],['Cihaz',o.cihaz],['Uygun günler',(o.gunler||[]).join(', ')],['Hedef',o.hedef],['Eğitim notu',o.not]])})
-:db.veliler.filter(v=>{const k=vk(v);return uygun(k.aktif,[v,k.eposta,k.telefon,k.sehir,...db.ogrenciler.filter(o=>o.veli==v).map(o=>o.ad)])}).map(v=>{const k=vk(v),cocuk=db.ogrenciler.filter(o=>o.veli==v),borc=db.odemeler.filter(p=>!p.ok&&cocuk.some(o=>o.ad==p.ogr)).reduce((a,p)=>a+p.tutar,0);
+:db.veliler.filter(v=>{const k=vk(v);return uygun(k.aktif,[...kVeli(v),v,k.eposta,k.telefon,k.sehir,...db.ogrenciler.filter(o=>o.veli==v).map(o=>o.ad)])}).map(v=>{const k=vk(v),cocuk=db.ogrenciler.filter(o=>o.veli==v),borc=db.odemeler.filter(p=>!p.ok&&cocuk.some(o=>o.ad==p.ogr)).reduce((a,p)=>a+p.tutar,0);
 return kart_('veli',v,k.aktif,!k.eposta,[k.yakinlik,k.sehir].filter(Boolean).join(' · '),`<span>${I('mail',14)} ${E(k.eposta||'—')}</span><span>${I('phone',14)} ${E(k.telefon||'—')}</span>`,'Öğrencileri',cocuk.map(o=>o.ad),
 [['İkinci telefon',k.telefon2],['İletişim tercihi',k.iletisim.join(', ')],['Aranabileceği zaman',k.saat.join(', ')],['Ödeme planı',k.plan],['Bekleyen ödeme',tl(borc)],['Duyuru izni',k.ticari?'Var':'Yok'],['Not',k.not]])});
 return kartlar.join('')||bos('Aramanıza uygun kayıt yok.')}
@@ -622,7 +625,7 @@ if(!x.ad||!dersler.length){toast(x.ad?'En az bir ders seçin':'Ad soyad yazın')
 if(x.ad!==eski&&ob(x.ad)){toast('Bu adla bir öğrenci zaten var');return false}
 const o=eski?ob(eski):{aktif:true};
 ['dogum','sehir','eposta','telefon','duzey','sinif','okul','veli','seviye','cihaz','hedef','not'].forEach(a=>o[a]=x[a]);
-Object.assign(o,{dersler,gunler:fd.getAll('gunler')});
+Object.assign(o,{dersler,gunler:fd.getAll('gunler'),kurum:kurumDegeri(x,o.kurum,!eski)});
 if(eski&&eski!=x.ad)ogrAdDegis(eski,x.ad);
 o.ad=x.ad;if(!eski)db.ogrenciler.push(o);kg.ogr.form=null;kg.ogr.ac=x.ad;return true}
 function veliKaydet(f,x){
@@ -631,7 +634,7 @@ if(bulut&&eski&&x.ad!==eski){toast('Giriş hesabı ada bağlı olduğu için ad 
 if(!x.ad){toast('Ad soyad yazın');return false}
 if(x.ad!==eski&&db.veliler.includes(x.ad)){toast('Bu adla bir veli zaten var');return false}
 const k={...(eski?vk(eski):{aktif:true}),iletisim:fd.getAll('iletisim'),saat:fd.getAll('saat'),ticari:!!x.ticari};
-['yakinlik','sehir','eposta','telefon','telefon2','plan','not'].forEach(a=>k[a]=x[a]);
+['yakinlik','sehir','eposta','telefon','telefon2','plan','not'].forEach(a=>k[a]=x[a]);k.kurum=kurumDegeri(x,k.kurum,!eski);
 if(eski){db.veliler[db.veliler.indexOf(eski)]=x.ad;db.ogrenciler.forEach(o=>{if(o.veli==eski)o.veli=x.ad});if(kisi.veli==eski)kisi.veli=x.ad;delete veliKayit[eski]}else db.veliler.push(x.ad);
 veliKayit[x.ad]=k;
 const secili=fd.getAll('cocuklar');db.ogrenciler.forEach(o=>{if(secili.includes(o.ad))o.veli=x.ad;else if(o.veli==x.ad)o.veli='—'});
@@ -674,21 +677,31 @@ const atanan=ata&&D(ata);
 const panelAta=atanan?blok('user-plus',`Öğretmen ata: ${E(atanan.ad)}`,`<form class="hform" data-f="ata"><input type="hidden" name="id" value="${atanan.id}"><p class="mut">Ders düzeyi: ${E(atanan.duzey.join(', '))} · Şu anki öğretmen: ${E(atanan.hoca)}</p><div class="adaylar">${adaylar(atanan.duzey,atanan.id,atanan.hoca)}</div>${onayKutusu}<div class="eylem sol"><button class="btn">${I('check',15)} Atamayı kaydet</button><button type="button" class="btn s" data-a="atac" data-v="">Vazgeç</button></div></form>`):'';
 return panelAta+(atanan?'':yeni)+blok('book-open','Dersler',`<div class="dkart">${db.dersler.map(d=>{const u=uygunluk(d.hoca,d.duzey,d.id);return `<article>${img(d)}<div><a href="#${d.id}"><b>${E(d.ad)}</b></a><div class="mut">${d.hafta} hafta · ${tl(d.fiyat)}</div><div class="mut">${E(d.duzey.join(', '))}</div><div class="mut">${I('building-2',13)} ${E(d.kurum||'Kurum belirtilmedi')}</div>${kim(d.hoca)}${d.hoca==BOSHOCA?'':`<span class="tag ${UYGUN[u.s][1]}" title="${E(u.neden)}">${UYGUN[u.s][0]}</span>`}${atayanNotu(d)}<div class="eylem"><button class="btn s" data-a="atac" data-v="${d.id}">${I('user-plus',14)} Öğretmen ata</button><label class="btn o s">${I('image-up',14)} Fotoğraf yükle<input type="file" accept="image/jpeg,image/png,image/webp" data-foto="${d.id}" hidden></label>${rol=='admin'?`<button class="btn o s kirmizi" data-a="sil" data-v="${d.id}">${I('trash-2',14)} Kaldır</button>`:''}</div></div></article>`}).join('')}</div>`)}
 
+/* Bir kişinin kurumu: kaydında seçilen kurum ve bağlı olduğu derslerin kurumları */
+function kurumSuz(l){const adlar=db.kurumlar.map(k=>k.ad);return [...new Set(l)].filter(x=>adlar.includes(x))}
+function kHoca(h){return kurumSuz([hk_(h).kurum,...db.dersler.filter(d=>d.hoca==h).map(d=>d.kurum)])}
+function kOgr(o){return kurumSuz([o?.kurum,...(o?.dersler||[]).map(i=>D(i)?.kurum)])}
+function kVeli(v){return kurumSuz([vk(v).kurum,...db.ogrenciler.filter(o=>o.veli==v).flatMap(kOgr)])}
+function kurumEtiket(l){return rol!='admin'?'':' '+(l.length?l.map(k=>`<span class="tag kurumtag">${I('building-2',12)} ${E(k)}</span>`).join(' '):'<span class="tag kurumtag yok">Kurum belirtilmemiş</span>')}
+function kurumAlani(secili){return rol!='admin'?'':`<label>Kurum<select name="kurum"><option value="">Belirtilmedi</option>${db.kurumlar.map(k=>`<option ${k.ad==secili?'selected':''}>${E(k.ad)}</option>`).join('')}</select></label>`}
+function kurumDegeri(x,eskiDeger,yeniKayit){return rol=='admin'?x.kurum||'':yeniKayit?kisi.kurum:eskiDeger||''}
+
 function kurumOzet(){
 const v=analizVeri(),adlar=db.kurumlar.map(k=>k.ad);
 const hesap=l=>{const idler=l.map(x=>x.d.id),ogr=v.aktif.filter(o=>o.dersler.some(i=>idler.includes(i))),[a,b]=v.katildi(v.yok.filter(y=>idler.includes(y.d))),g=l.reduce((t,x)=>t+x.gelen,0),bk=l.reduce((t,x)=>t+x.beklenen,0);
 return {ders:l.length,hoca:new Set(l.map(x=>x.d.hoca).filter(h=>db.hocalar.includes(h))).size,ogr:ogr.length,veli:new Set(ogr.map(o=>o.veli).filter(x=>db.veliler.includes(x))).size,kayit:l.reduce((t,x)=>t+x.n,0),a,b,g,bk}};
-const satir=db.kurumlar.map(k=>({ad:k.ad,sehir:k.sehir,...hesap(v.dersler.filter(x=>x.d.kurum==k.ad))}));
-const bagsiz=v.dersler.filter(x=>!adlar.includes(x.d.kurum)),tum=hesap(v.dersler.filter(x=>adlar.includes(x.d.kurum)));
+const kisiler=sec=>({hoca:db.hocalar.filter(h=>sec(kHoca(h))).length,ogr:v.aktif.filter(o=>sec(kOgr(o))).length,veli:db.veliler.filter(x=>sec(kVeli(x))).length});
+const satir=db.kurumlar.map(k=>({ad:k.ad,sehir:k.sehir,...hesap(v.dersler.filter(x=>x.d.kurum==k.ad)),...kisiler(l=>l.includes(k.ad))}));
+const bagsiz=v.dersler.filter(x=>!adlar.includes(x.d.kurum)),tum={...hesap(v.dersler.filter(x=>adlar.includes(x.d.kurum))),...kisiler(l=>l.length>0)},acikta={...hesap(bagsiz),...kisiler(l=>!l.length)};
 const oran_=(a,b)=>b?`%${yuzde(a,b)} <small class="mut">${a}/${b}</small>`:'—';
 const hucre=(ad,x)=>[ad,x.ders,x.hoca,x.ogr,x.veli,x.kayit,oran_(x.a,x.b),oran_(x.g,x.bk)];
 const basliklar=['Kurum','Ders','Öğretmen','Öğrenci','Veli','Ders kaydı','Devam','Ödev teslimi'];
 const rows=satir.map(x=>hucre(`<b>${E(x.ad)}</b><div class="mut">${E(x.sehir||'')}</div>`,x));
-if(bagsiz.length)rows.push(hucre('<span class="mut">Kurumu belirtilmemiş</span>',hesap(bagsiz)));
+if(bagsiz.length||acikta.hoca||acikta.ogr||acikta.veli)rows.push(hucre('<span class="mut">Kurumu belirtilmemiş</span>',acikta));
 if(db.kurumlar.length>1)rows.push(hucre('<b>Tüm kurumlar</b>',tum).map(x=>`<b>${x}</b>`));
 const olculu=(al,pay,payda,birim)=>{const l=satir.filter(x=>x[payda]);return l.length?l.map(x=>olcer(x.ad,x[pay],x[payda],birim)).join(''):bos(al)};
 if(!db.kurumlar.length)return blok('chart-column','Kurum özet',bos('Henüz kurum yok. Aşağıdan ilk kurumu açın.'));
-return blok('chart-column','Kurum özet',kutular([['building-2','Kurum',db.kurumlar.length,'#059669'],['book-open','Kuruma bağlı ders',tum.ders,'#0891b2'],['graduation-cap','Ders veren öğretmen',tum.hoca,'#ea580c'],['backpack','Öğrenci',tum.ogr,'#4f46e5']])+tablo(basliklar,rows)+'<p class="mut">Sayılar derslerin bağlı olduğu kuruma göre hesaplanır. İki kurumdan ders alan öğrenci her ikisinde sayılır; toplamda bir kez sayılır.</p>')
+return blok('chart-column','Kurum özet',kutular([['building-2','Kurum',db.kurumlar.length,'#059669'],['book-open','Kuruma bağlı ders',tum.ders,'#0891b2'],['graduation-cap','Öğretmen',tum.hoca,'#ea580c'],['backpack','Öğrenci',tum.ogr,'#4f46e5']])+tablo(basliklar,rows)+'<p class="mut">Kişiler, kayıtlarında seçilen kuruma ve derslerinin kurumuna göre sayılır. İki kurumda olan kişi her ikisinde, toplamda bir kez sayılır. Devam ve ödev oranları derslere göredir.</p>')
 +`<div class="gizgara">${gkart('backpack','Kurumlara göre öğrenci','Aktif öğrenci sayısı',yatay(satir.map(x=>[x.ad,x.ogr]),'öğrenci'))}${gkart('book-open','Kurumlara göre ders','Kuruma bağlı ders sayısı',yatay(satir.map(x=>[x.ad,x.ders]),'ders'))}${gkart('activity','Derse devam oranı','Mazeretliler hariç',olculu('Henüz yoklama alınmadı.','a','b','katılım'))}${gkart('notebook-pen','Ödev teslim oranı','Beklenen teslimlere göre',olculu('Henüz ödev verilmedi.','g','bk','teslim'))}</div>`}
 const kurumDers=()=>blok('link','Ders – kurum bağlantısı',tablo(['Ders','Öğretmen','Kurum'],db.dersler.map(d=>[E(d.ad),E(d.hoca),`<select data-kurumsec="${E(d.id)}" aria-label="${E(d.ad)} dersinin kurumu"><option value="">Belirtilmedi</option>${db.kurumlar.map(k=>`<option ${d.kurum==k.ad?'selected':''}>${E(k.ad)}</option>`).join('')}</select>`])));
 
